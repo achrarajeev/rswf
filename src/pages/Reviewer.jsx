@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { FileText, Check, MessageSquarePlus, X } from 'lucide-react'
+import { Check, MessageSquarePlus, X } from 'lucide-react'
 import { claims } from '../data'
 import { PageHead, Trust } from '../components/ui'
 
@@ -13,11 +13,11 @@ export default function Reviewer() {
       <PageHead eyebrow="Check" title="Reviewer dashboard" sub={`${q.length} submissions waiting.`} />
       <div className="wrap side" style={{ margin: '24px auto 60px' }}>
         <div className="grid" style={{ gap: 10 }}>{q.map((x, k) => (
-          <motion.button layout key={x.text} onClick={() => setSel(k)} className="card hover row" style={{ textAlign: 'left', borderColor: k === sel ? 'var(--green)' : undefined }}>
-            <FileText color="#6b6b63" /><div style={{ flex: 1 }}><div>{x.text}</div><div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>{x.type} · {x.age} old</div></div></motion.button>))}
+          <motion.button layout key={x.text} onClick={() => setSel(k)} className="card hover row" style={{ textAlign: 'left', borderColor: k === sel ? 'var(--g1)' : undefined }}>
+            <img className="rev-thumb" src={`/images/${x.thumb}.jpg`} alt="" /><div style={{ flex: 1 }}><div>{x.text}</div><div style={{ fontSize: 12, color: 'var(--mute)', marginTop: 4 }}>{x.type} · by {x.by} · {x.age} old</div></div></motion.button>))}
           {!q.length && <div className="card">Queue clear. Nice work.</div>}</div>
-        {c && <aside className="card" style={{ alignSelf: 'start' }}><b>Decision</b><p style={{ fontSize: 13, margin: '6px 0 12px', color: 'var(--muted)' }}>{c.src}</p>
-          <div className="row" style={{ marginBottom: 12 }}>{['High', 'Medium', 'Unverified'].map(t => <button key={t} onClick={() => setTrust(t)} style={{ opacity: trust === t ? 1 : .45, outline: trust === t ? '2px solid var(--green)' : 0, borderRadius: 99 }}><Trust t={t} /></button>)}</div>
+        {c && <aside className="card" style={{ alignSelf: 'start' }}><img className="rev-big" src={`/images/${c.thumb}.jpg`} alt="Attached evidence, sample image" /><div className="mono" style={{ color: 'var(--mute)', margin: '8px 0 10px' }}>Submitted by {c.by} · sample attachment</div><b>Decision</b><p style={{ fontSize: 13, margin: '6px 0 12px', color: 'var(--mute)' }}>{c.src}</p>
+          <div className="row" style={{ marginBottom: 12 }}>{['High', 'Medium', 'Unverified'].map(t => <button key={t} onClick={() => setTrust(t)} style={{ opacity: trust === t ? 1 : .45, outline: trust === t ? '2px solid var(--g1)' : 0, borderRadius: 99 }}><Trust t={t} /></button>)}</div>
           <label className="field"><span>Note (required)</span><textarea rows="3" value={note} onChange={e => setNote(e.target.value)} /></label>
           <div className="grid" style={{ gap: 8 }}>
             <button disabled={!note} className="btn primary" onClick={act}><Check size={15} />Approve</button>

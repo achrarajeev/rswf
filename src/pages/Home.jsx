@@ -29,8 +29,8 @@ export default function Home() {
         <div className="wrap"><div className="copy">
           <h1>{line('Check the claim.', 0)}{line(<span>Follow the <span className="ul">source.<Squiggle /></span></span>, 1)}</h1>
           <p className="lead">An open, citizen-run ledger of India’s environmental issues, where every claim links back to a source.</p>
-          <form className="hero-search" onSubmit={e => { e.preventDefault(); nav('/issues') }}>
-            <input placeholder="Search a project, company or place" /><button className="btn primary"><Search size={15} />Search</button>
+          <form className="hero-search" onSubmit={e => { e.preventDefault(); { const q = new FormData(e.currentTarget).get('q').trim(); nav(q ? `/issues?q=${encodeURIComponent(q)}` : '/issues') } }}>
+            <input name="q" placeholder="Search a project, company or place" /><button className="btn primary"><Search size={15} />Search</button>
           </form>
           <div className="row"><Link to="/issues" className="btn">Explore issues</Link><Link to="/hub" className="btn sky">All features</Link></div>
         </div></div>
@@ -39,6 +39,11 @@ export default function Home() {
         </motion.div>
       </section>
       <Marquee items={['No source, no claim', ...sources]} />
+      <div className="wrap"><div className="kpis">
+        {[[issues.length, 'Active issues', '', Scale, 'bg-mint'], [issues.filter(i => i.status !== 'Stopped').reduce((n, i) => n + i.hectares, 0), 'Hectares of forest at risk', '', TreePine, 'bg-sky'], [issues.reduce((n, i) => n + i.help.length, 0), 'Open requests for help', '', Users, 'bg-mint']].map(([v, l, u, I, bg], k) =>
+          <Reveal key={l} delay={k * .08}><div className={`kpi ${bg}`}><span className="iconbox"><I size={20} /></span><div><Counter to={v} suffix={u} /><small>{l}</small></div></div></Reveal>)}
+        <p className="kpi-note">Sample cases, illustrative until reviewed.</p>
+      </div></div>
 
       <div className="wrap"><div className="cat3">
         {cats.map(([t, I, img, d, ecos], k) => {
@@ -162,7 +167,7 @@ export default function Home() {
 
       <section className="section" style={{ paddingTop: 0 }}><div className="wrap">
         <div className="sec-head">
-          <div><span className="eyebrow">Progress</span><h2 style={{ marginTop: 14 }}>Slow gains, long way to go</h2></div>
+          <div><span className="eyebrow">Progress</span> <span className="eyebrow warnpill">Index method not final</span><h2 style={{ marginTop: 14 }}>Slow gains, long way to go</h2></div>
           <Link to="/tracker" className="btn ghost">Open the tracker <ArrowRight size={14} /></Link>
         </div>
         <div className="charts">

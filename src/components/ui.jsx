@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useInView, animate, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion'
-import { Leaf, Link2, ShieldCheck, Search, FileSearch, Map, BookOpenCheck, TrendingUp, Upload, HeartHandshake, MessagesSquare, Gauge } from 'lucide-react'
+import { Leaf, Link2, ShieldCheck, Search, FileSearch, Map, BookOpenCheck, TrendingUp, Upload, HeartHandshake, MessagesSquare, Gauge, SearchX, Share2, Check, Copy, MessageCircle, Send, FileText, BadgeCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import credits from '../credits.json'
 
-const byName = { Search, FileSearch, Map, BookOpenCheck, TrendingUp, ShieldCheck, Upload, HeartHandshake, MessagesSquare, Gauge }
+const byName = { Search, FileSearch, Map, BookOpenCheck, TrendingUp, ShieldCheck, Upload, HeartHandshake, MessagesSquare, Gauge, FileText, BadgeCheck }
 export const Icon = ({ name, ...p }) => { const C = byName[name] || Leaf; return <C {...p} /> }
 
 export const Reveal = ({ children, delay = 0, y = 28, ...p }) => (
@@ -96,3 +97,25 @@ export const Squiggle = () => (
       initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1.1, delay: .3, ease: [0.22, 1, 0.36, 1] }} />
   </svg>
 )
+
+export const Missing = ({ what = 'This data', children }) => (
+  <div className="missing"><SearchX size={22} /><div><b>{what} not found yet</b><p>{children || 'Nobody has added a sourced record for this case. Without a source we do not show a claim.'}</p><Link to="/contribute" className="btn sky">Add evidence</Link></div></div>
+)
+
+export function ShareButton({ title, className = 'btn ghost' }) {
+  const [open, setOpen] = useState(false); const [done, setDone] = useState(false)
+  const url = typeof location !== 'undefined' ? location.href : ''
+  const copy = async () => { try { await navigator.clipboard.writeText(url); setDone(true); setTimeout(() => setDone(false), 1800) } catch { /* clipboard blocked */ } }
+  const click = async () => { if (navigator.share) { try { await navigator.share({ title, url }); return } catch { /* cancelled */ } } setOpen(o => !o) }
+  const q = encodeURIComponent(title + ' ' + url)
+  return (
+    <div className="sharewrap">
+      <button className={className} onClick={click} aria-expanded={open}><Share2 size={15} /> Share</button>
+      {open && <div className="share-pop">
+        <button onClick={copy}>{done ? <Check size={15} /> : <Copy size={15} />}{done ? 'Link copied' : 'Copy link'}</button>
+        <a href={`https://wa.me/?text=${q}`} target="_blank" rel="noreferrer"><MessageCircle size={15} />WhatsApp</a>
+        <a href={`https://twitter.com/intent/tweet?text=${q}`} target="_blank" rel="noreferrer"><Send size={15} />X</a>
+      </div>}
+    </div>
+  )
+}

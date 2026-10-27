@@ -13,6 +13,9 @@ import Contribute from './pages/Contribute'
 import Reviewer from './pages/Reviewer'
 import Forum from './pages/Forum'
 import Tracker from './pages/Tracker'
+import Me from './pages/Me'
+import About from './pages/About'
+import Rti from './pages/Rti'
 
 createRoot(document.getElementById('root')).render(
   <HashRouter>
@@ -28,6 +31,9 @@ createRoot(document.getElementById('root')).render(
         <Route path="reviewer" element={<Reviewer />} />
         <Route path="forum" element={<Forum />} />
         <Route path="tracker" element={<Tracker />} />
+        <Route path="about" element={<About />} />
+        <Route path="rti" element={<Rti />} />
+        <Route path="me" element={<Me />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Route>
     </Routes>

@@ -46,7 +46,10 @@
   Bad:   - Fixed the database connection issue.   ← unsearchable, useless later
 -->
 
-- 
+- [2026-10-28] Page goes blank (empty #root) after clicking a tab → missing import in a shared component (`Link` in `Missing`); check console ReferenceError (`src/components/ui.jsx`) [#react #vite]
+- [2026-10-28] Nav burger pushed off-screen at 360px after adding nav search → later `.nav .search{display:flex}` overrode the mobile hide; add `display:none!important` in the 900px block (`src/styles.css`) [#mobile #css]
+- [2026-10-28] Mobile `position:fixed` scrim doesn't dim the page → parent `backdrop-filter` becomes the containing block; render the scrim outside it (`src/components/Layout.jsx`) [#css #mobile]
+- [2026-10-28] Grid tile rule like `:first-child{grid-column:1/-1}` ignored on mobile → items are wrapped in Reveal divs; style by class and use `!important` over inline grids (`src/styles.css`) [#css #mobile]
 
 ---
 

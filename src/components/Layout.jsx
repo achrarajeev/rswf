@@ -1,7 +1,7 @@
-import { NavLink, Link, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Leaf, LayoutGrid, Map, Upload, MessagesSquare, ListChecks, ArrowUp, Menu, X } from 'lucide-react'
+import { Search, Leaf, LayoutGrid, Map, Upload, MessagesSquare, ListChecks, ArrowUp, Menu, X, User } from 'lucide-react'
 import { features } from '../data'
 import { ScrollBar, Orbs } from './ui'
 
@@ -10,6 +10,8 @@ const links = [['/issues', 'Issues'], ['/map', 'Map'], ['/research', 'Research']
 export default function Layout() {
   const loc = useLocation()
   const [open, setOpen] = useState(false)
+  const nav = useNavigate()
+  const go = e => { e.preventDefault(); const q = new FormData(e.currentTarget).get('q').trim(); nav(q ? `/issues?q=${encodeURIComponent(q)}` : '/issues'); e.currentTarget.reset(); setOpen(false) }
   useEffect(() => { window.scrollTo(0, 0); setOpen(false) }, [loc.pathname])
   return (
     <>
@@ -17,11 +19,12 @@ export default function Layout() {
       <header className="nav"><div className="wrap">
         <Link to="/" className="brand"><Leaf size={26} strokeWidth={2.2} />Earth Ledger</Link>
         <nav className="links">{links.map(([to, l]) => <NavLink key={to} to={to} className={({ isActive }) => isActive ? 'active' : ''}>{l}</NavLink>)}</nav>
+        <form className="search" onSubmit={go} role="search"><Search size={15} /><input name="q" placeholder="Search issues" aria-label="Search issues" /></form>
         <div className="navbtns"><Link to="/contribute" className="btn sky">Join us</Link><Link to="/issues" className="btn">Take action</Link>
           <button className="burger" onClick={() => setOpen(o => !o)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open}>{open ? <X size={22} /> : <Menu size={22} />}</button></div>
       </div>
         <AnimatePresence>{open && <><motion.nav className="drawer" initial={{ opacity: 0, y: -10, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -10, scale: .97 }} transition={{ duration: .22 }}>
-          <div className="wrap">{[['/', 'Home'], ...links].map(([to, l], i) => <motion.div key={to} initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: .04 * i }}><NavLink to={to} end={to === '/'} className={({ isActive }) => isActive ? 'active' : ''}>{l}</NavLink></motion.div>)}
+          <div className="wrap"><form className="dsearch" onSubmit={go} role="search"><Search size={16} /><input name="q" placeholder="Search a project, company or place" aria-label="Search" /></form>{[['/', 'Home'], ...links].map(([to, l], i) => <motion.div key={to} initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: .04 * i }}><NavLink to={to} end={to === '/'} className={({ isActive }) => isActive ? 'active' : ''}>{l}</NavLink></motion.div>)}
             <div className="drawer-btns"><Link to="/issues" className="btn">Take action</Link><Link to="/tracker" className="btn sky">Year on year</Link></div></div>
         </motion.nav></>}</AnimatePresence></header>
       <AnimatePresence>{open && <motion.div className="scrim" onClick={() => setOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />}</AnimatePresence>
@@ -43,7 +46,7 @@ export default function Layout() {
         <div className="big-word">Earth Ledger</div>
       </div></footer>
       <nav className="mobile-tab">
-        {[['/issues', ListChecks, 'Issues'], ['/map', Map, 'Map'], ['/contribute', Upload, 'Add'], ['/forum', MessagesSquare, 'Forum'], ['/hub', LayoutGrid, 'Hub']].map(([to, I, l]) =>
+        {[['/issues', ListChecks, 'Issues'], ['/map', Map, 'Map'], ['/contribute', Upload, 'Add'], ['/forum', MessagesSquare, 'Forum'], ['/me', User, 'Me']].map(([to, I, l]) =>
           <NavLink key={to} to={to} className={({ isActive }) => isActive ? 'active' : ''}><I size={18} />{l}</NavLink>)}
       </nav>
     </>
