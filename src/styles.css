@@ -585,3 +585,11 @@ tr.clickable{cursor:pointer;transition:background .2s}tr.clickable:hover{backgro
 .vsteps{list-style:none;padding:0;margin:0}.vsteps li{height:100%}
 .rti-tpl{margin-top:28px}.rti-tpl pre{white-space:pre-wrap;font:13.5px/1.6 var(--text);background:var(--mist,#f1faf4);border-radius:18px;padding:18px;margin:0;overflow-wrap:anywhere}
 @media(max-width:900px){.missing{flex-direction:column;padding:20px}.share-pop{bottom:auto;top:calc(100% + 8px)}}
+
+/* Forest-cover choropleth on the map */
+.forest-state { stroke: rgba(255,255,255,.7); stroke-width: .6; transition: fill .35s ease; }
+.forest-state:hover { stroke: #12150f; stroke-width: 1.2; }
+.forest-key { margin-top: 18px; max-width: 420px; display: grid; gap: 6px; font-size: 13px; }
+.forest-ramp { height: 10px; border-radius: 5px; border: 1px solid rgba(18,21,15,.15); }
+.forest-scale { display: flex; justify-content: space-between; font-size: 11px; opacity: .7; }
+.forest-key small { opacity: .7; line-height: 1.45; }

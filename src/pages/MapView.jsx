@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin } from 'lucide-react'
 import { issues } from '../data'
 import { PageHead, Status, Trust } from '../components/ui'
-import IndiaMap, { project } from '../components/IndiaMap'
+import IndiaMap, { project, FOREST_RAMP } from '../components/IndiaMap'
+import { forestMeta } from '../forest'
 
 const layers = ['All', 'Forest', 'Rivers', 'Lakes', 'Wildlife']
 const trendCol = { depleted: '#E0471B', restored: '#2F6B45', improved: '#2b86c5' }
@@ -36,7 +37,7 @@ export default function MapView() {
           <div className="filters" style={{ margin: '0 0 16px' }}>{layers.map(l => <button key={l} className={`fbtn ${layer === l ? 'on' : ''}`} onClick={() => setLayer(l)}>{l}</button>)}</div>
           <div className="mapbox" style={{ display: 'grid', placeItems: 'center' }}>
             <div style={{ position: 'relative', height: '100%', aspectRatio: '600/680' }}>
-              <IndiaMap />
+              <IndiaMap year={year} />
               <AnimatePresence>
                 {clusters.map(c => { const multi = c.items.length > 1; const col = multi ? '#0f4c4f' : trendCol[c.items[0].trend]; const on = sel && key(sel) === key(c); return (
                   <motion.button key={key(c)} className={`marker ${multi ? 'cl' : ''}`} aria-label={multi ? `${c.items.length} cases` : c.items[0].name} onClick={() => setSelKey(key(c))}
@@ -49,6 +50,14 @@ export default function MapView() {
           <div className="row" style={{ marginTop: 18, gap: 14 }}><span className="mono" style={{ width: 44 }}>{year}</span><input type="range" min="2015" max="2026" value={year} onChange={e => setYear(+e.target.value)} aria-label="Year" style={{ flex: 1, accentColor: '#E0471B' }} /></div>
           <div className="row" style={{ gap: 18, marginTop: 14, flexWrap: 'wrap' }}>{Object.entries(trendCol).map(([k, c]) => <span key={k} className="chip"><i style={{ width: 9, height: 9, borderRadius: '50%', background: c, display: 'inline-block' }} />{trendTxt[k]}</span>)}
             <span className="chip"><i className="cl-key">2</i>Grouped cases</span></div>
+          <div className="forest-key">
+            <div className="row" style={{ gap: 10, alignItems: 'center' }}>
+              <b>Forest cover by state</b><Trust t={forestMeta.trust} />
+            </div>
+            <div className="forest-ramp" style={{ background: FOREST_RAMP }} role="img" aria-label="Forest cover scale from 0 to 90 percent or more" />
+            <div className="forest-scale"><span>0%</span><span>30%</span><span>90%+</span></div>
+            <small>{year > forestMeta.years[1] ? `Reports after ${forestMeta.years[1]} are not loaded yet, so the shading holds at ${forestMeta.years[1]}. ` : year > forestMeta.years[0] && year < forestMeta.years[1] ? 'Between report years the shading is blended. ' : ''}Source: {forestMeta.src}. {forestMeta.note}</small>
+          </div>
         </div>
 
         <aside className="mapside">
