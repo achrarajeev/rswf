@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import Hub from './pages/Hub'
 import Issues from './pages/Issues'
 import IssueDetail from './pages/IssueDetail'
+import Join from './pages/Join'
 import Research from './pages/Research'
 import MapView from './pages/MapView'
 import Contribute from './pages/Contribute'
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="hub" element={<Hub />} />
         <Route path="issues" element={<Issues />} />
         <Route path="issues/:id" element={<IssueDetail />} />
+        <Route path="issues/:id/join" element={<Join />} />
         <Route path="research" element={<Research />} />
         <Route path="map" element={<MapView />} />
         <Route path="contribute" element={<Contribute />} />

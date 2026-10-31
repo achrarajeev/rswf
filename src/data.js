@@ -40,3 +40,28 @@ export const features = {
   Act: [['/contribute', 'Contribute evidence', 'Upload RTIs, field notes, documents.', 'Upload'], ['/rti', 'Collect your own data', 'File an RTI and gather evidence yourself.', 'FileText'], ['/issues', 'Needs help', 'Money, people and legal support requests.', 'HeartHandshake']],
   Discuss: [['/forum', 'Forum', 'Threads by lawyers, researchers and locals.', 'MessagesSquare'], ['/tracker', 'Ecological Progress Index', 'One index. Method still being agreed.', 'Gauge']],
 }
+
+// Who is already working on a case. ILLUSTRATIVE sample for saidongar until real registrations exist.
+// kind: Individual | Company | Institute
+export const contributors = {
+  saidongar: [
+    { name: 'A. Deshmukh', kind: 'Individual', role: 'Lawyer', does: 'Preparing the NGT Pune submission and reviewing legal claims.', joined: 'Jun 2026' },
+    { name: 'S. Rao', kind: 'Individual', role: 'Researcher', does: 'Carbon estimate and method write-up.', joined: 'Aug 2026' },
+    { name: 'P. Kulkarni', kind: 'Individual', role: 'Local leader', does: 'Coordinating village testimony in Mulshi.', joined: 'Jul 2026' },
+    { name: 'Sahyadri Wildlife Trust (sample)', kind: 'Institute', role: 'Field survey', does: 'Stream and species survey across the project area.', joined: 'Aug 2026' },
+    { name: 'GreenLedger Analytics (sample)', kind: 'Company', role: 'Satellite analysis', does: 'Canopy-loss mapping, donated pro bono.', joined: 'Sep 2026' },
+  ],
+}
+
+// Dated, sourced progress updates, newest first. Each needs proof, or it is not listed.
+// ILLUSTRATIVE sample for saidongar.
+export const progress = {
+  saidongar: [
+    { date: '19 Sep 2026', title: 'NGT Pune hearing listed', by: 'A. Deshmukh', note: 'Matter listed before the Pune bench. Next date awaited.', src: 'News report, 19 Sep 2026', trust: 'High', img: 'ganga' },
+    { date: '02 Sep 2026', title: 'Village testimony collected', by: 'P. Kulkarni', note: 'Residents of 3 villages state gram sabha consent was not sought.', src: 'Village testimony, Mulshi', trust: 'Medium', img: 'hasdeo' },
+    { date: '30 Aug 2026', title: 'Carbon estimate drafted', by: 'S. Rao', note: 'Estimate of 1.9 Mt CO₂e from cleared canopy, awaiting peer cross-check.', src: 'Draft paper (sample)', trust: 'Unverified', img: 'falls' },
+    { date: '12 Aug 2026', title: 'RTI reply received', by: 'R. Patil', note: 'Reply records 412 ha including 6 perennial streams, against 38 ha in the filing.', src: 'RTI reply, 12 Aug 2026', trust: 'High', img: 'rays' },
+  ],
+}
+
+export const helpKinds = ['Legal', 'Research', 'Field work', 'Local outreach', 'Funding', 'Media and awareness', 'Technical or data']

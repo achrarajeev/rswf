@@ -1,17 +1,20 @@
 import { useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Hand, HandCoins, Users, Scale, Flame } from 'lucide-react'
-import { issues, claims, threads } from '../data'
+import { Hand, HandCoins, User, Building2, Landmark, Scale, Flame, UserPlus, CalendarDays } from 'lucide-react'
+import { issues, claims, threads, contributors, progress } from '../data'
 import { Status, Trust, Source, PhotoCredit, Missing, ShareButton } from '../components/ui'
 
-const tabs = ['Overview', 'Legal', 'Emissions and biodiversity', 'People and lawyers', 'Sources', 'Discussion']
+const tabs = ['Overview', 'Legal', 'Emissions and biodiversity', 'Contributors', 'Progress and evidence', 'Sources', 'Discussion']
+const kindIcon = { Individual: User, Company: Building2, Institute: Landmark }
 const steps = ['Proposed', 'Under clearance', 'Cleared', 'In court', 'Stopped']
 
 export default function IssueDetail() {
   const { id } = useParams(); const i = issues.find(x => x.id === id) || issues[0]
   const full = i.id === 'saidongar' // only this case has sourced sample detail
-  const [tab, setTab] = useState('Overview'); const idx = steps.indexOf(i.status)
+  const [tab, setTab] = useState('Overview'); const [kind, setKind] = useState('All')
+  const people = contributors[i.id] || [], updates = progress[i.id] || []
+  const shown = kind === 'All' ? people : people.filter(p => p.kind === kind); const idx = steps.indexOf(i.status)
   const ref = useRef(null); const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '16%'])
   return (
@@ -42,8 +45,30 @@ export default function IssueDetail() {
             {tab === 'Legal' && full && <div className="card"><Scale size={20} /><p style={{ margin: '12px 0' }}>Stage-I forest clearance pending. NGT Pune hearing listed.</p><Source>News report, 19 Sep 2026</Source><p style={{ marginTop: 16, color: 'var(--sig)' }}>Missing: gram sabha consent record. Help needed to obtain via RTI.</p></div>}
             {tab === 'Emissions and biodiversity' && !full && <Missing what="Emissions and biodiversity data" />}
             {tab === 'Emissions and biodiversity' && full && <div className="grid g2"><div className="card"><Flame color="#E0471B" /><h3 style={{ fontSize: 56, margin: '12px 0' }}>1.9 Mt</h3><p>CO₂e estimated from cleared canopy</p><Source>Sample estimate</Source></div><div className="card"><h3 style={{ fontSize: 56, margin: '34px 0 12px' }}>14</h3><p>Schedule-I species recorded nearby</p><Source>Local survey (sample)</Source></div></div>}
-            {tab === 'People and lawyers' && !full && <Missing what="People and lawyers">No lawyer, researcher or local leader has joined this case yet.</Missing>}
-            {tab === 'People and lawyers' && full && <div className="grid g2">{[['A. Deshmukh', 'Lawyer'], ['S. Rao', 'Researcher'], ['P. Kulkarni', 'Local leader']].map(([n, r]) => <div key={n} className="card row"><Users size={20} /><div><b>{n}</b><div className="mono" style={{ color: 'var(--mute)' }}>{r}</div></div></div>)}</div>}
+            {tab === 'Contributors' && <>
+              <div className="row between" style={{ flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
+                <p style={{ color: 'var(--mute)' }}>{people.length ? `${people.length} people and organisations are working on this issue.` : 'Nobody has joined this issue yet.'}</p>
+                <Link to={`/issues/${i.id}/join`} className="btn primary"><UserPlus size={15} /> Join this issue</Link>
+              </div>
+              {people.length > 0 && <div className="filters" style={{ marginBottom: 18 }}>{['All', 'Individual', 'Company', 'Institute'].map(k => <button key={k} className={`fbtn ${kind === k ? 'on' : ''}`} onClick={() => setKind(k)}>{k}</button>)}</div>}
+              {people.length === 0 && <Missing what="Contributors">Be the first lawyer, researcher, company or institute to join this case.</Missing>}
+              <div className="grid g2">{shown.map(p => { const K = kindIcon[p.kind]; return <div key={p.name} className="card"><div className="row" style={{ gap: 12 }}><div className="iconbox" style={{ margin: 0 }}><K size={20} /></div><div><b>{p.name}</b><div className="mono" style={{ color: 'var(--mute)' }}>{p.kind} · {p.role}</div></div></div><p style={{ margin: '14px 0 10px' }}>{p.does}</p><span className="chip"><CalendarDays size={11} />Joined {p.joined}</span></div> })}</div>
+              {people.length > 0 && <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginTop: 18 }}>Illustrative sample until registrations are verified.</p>}
+            </>}
+            {tab === 'Progress and evidence' && <>
+              <div className="card" style={{ background: 'var(--mint)', borderColor: 'transparent', marginBottom: 26 }}>
+                <div className="mono" style={{ color: 'var(--mute)' }}>Current status</div>
+                <div className="row" style={{ gap: 12, flexWrap: 'wrap', margin: '10px 0' }}><Status s={i.status} /><span className="mono">{updates.length ? `Last update ${updates[0].date}` : 'No updates recorded'}</span></div>
+                <p style={{ fontSize: 14 }}>Every update below carries its proof. An update without a source is not shown.</p>
+              </div>
+              {updates.length === 0 && <Missing what="Progress record">No contributor has logged work with proof for this case yet.</Missing>}
+              <ol className="proof">{updates.map(u => <li key={u.title}>
+                <div className="card"><div className="row between" style={{ flexWrap: 'wrap', gap: 8 }}><span className="mono" style={{ color: 'var(--mute)' }}>{u.date} · {u.by}</span><Trust t={u.trust} /></div>
+                  <h3 style={{ fontSize: 20, margin: '10px 0 6px' }}>{u.title}</h3><p>{u.note}</p>
+                  <div className="row" style={{ marginTop: 12, gap: 12 }}><img src={`/images/${u.img}.jpg`} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} /><Source>{u.src}</Source></div></div>
+              </li>)}</ol>
+              {updates.length > 0 && <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginTop: 18 }}>Illustrative sample until reviewed. <Link to="/contribute" style={{ color: 'var(--g1)', textDecoration: 'underline' }}>Add proof of progress</Link></p>}
+            </>}
             {tab === 'Sources' && <div className="grid">{claims.map(c => <div key={c.text} className="card"><p>{c.text}</p><div className="row" style={{ marginTop: 10 }}><Source>{c.src}</Source><Trust t={c.trust} /></div></div>)}</div>}
             {tab === 'Discussion' && <div className="grid">{threads.slice(0, 3).map(t => <Link key={t.title} to="/forum" className="card hover">{t.title}<div className="mono" style={{ color: 'var(--mute)', marginTop: 8 }}>{t.replies} replies</div></Link>)}</div>}
           </motion.div>
@@ -52,7 +77,7 @@ export default function IssueDetail() {
           <h3 style={{ fontSize: 28, marginBottom: 6 }}>How you can help</h3>
           <p style={{ color: 'var(--mute)', fontSize: 14, marginBottom: 20 }}>Needs: {i.help.join(', ') || 'nothing right now'}</p>
           <div className="grid" style={{ gap: 10 }}>
-            <button className="btn primary"><Hand size={15} /> Volunteer</button>
+            <Link to={`/issues/${i.id}/join`} className="btn primary"><Hand size={15} /> Volunteer</Link>
             <button className="btn warn"><HandCoins size={15} /> Donate</button>
             <ShareButton title={i.name} />
           </div>
