@@ -51,3 +51,10 @@ Format: `## [YYYY-MM-DD] ADR-00N — Title`
 - **Decision:** One form with Individual/Company/Institute variants; organisations give a registration number; listed publicly only after reviewer approval; progress updates require a source.
 - **Why:** Matches the "no source, no claim" principle and stops fake organisations appearing.
 - **Consequences:** Needs a store and a reviewer queue (not built); email/phone stay private.
+
+## [2026-10-31] ADR-004 — Role table and invite-only staff
+- **Context:** Spec wants admin, moderator, lawyer, local researcher with verification; prototype had only User/Institute/Reviewer checks scattered across pages.
+- **Options:** per-page type checks; one permission table; full RBAC with per-user grants.
+- **Decision:** `src/roles.js` maps action → roles; Reviewer, Moderator, Admin are separate, invite-only staff; Lawyer/Local researcher are reviewer-verified badges on a User, not account types.
+- **Why:** The same table becomes server-side authorisation later; badges avoid a role per profession.
+- **Consequences:** UI checks only hide buttons; backend must enforce; ADR-003's reviewer approval now covers credentials too.

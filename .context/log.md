@@ -42,3 +42,9 @@
 - Added `Join.jsx` at `/issues/:id/join`: kind-dependent fields, registration number for organisations, validation, consent for public listing. Volunteer button now links to it.
 - Decided: unsourced progress updates are not shown; organisations are listed only after reviewer approval.
 - Open: browser/mobile check, persistence for registrations (TODO in `Join.jsx`), proof-logging flow.
+
+## [2026-10-31] session | Prototype flows, tasks, roles, admin
+- Built the in-memory prototype end to end: accounts and registration, institute approval, evidence pipeline with reviewer queue, forum thread/report, Evidence and People tabs, join form with needs, Solution tab with tasks (institutes maintain, volunteers pick up).
+- Added `roles.js` permission table, `/admin` (overview, users, moderation, audit log), staff invite, suspension, and verified Lawyer/Local researcher badges.
+- Decided: staff roles are invite-only; Reviewer, Moderator and Admin stay separate (ADR-004). Backend deferred until flows are final.
+- Open: nothing committed yet, 360px check of new pages, reject-path tests, unfilled CLAUDE.md placeholders.

@@ -1,79 +1,72 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { User, Building2, Landmark, Check, ShieldCheck } from 'lucide-react'
-import { issues, helpKinds } from '../data'
+import { Check, ShieldCheck } from 'lucide-react'
+import { issues, helpKinds, needToKinds } from '../data'
+import { useAuth, auth } from '../authStore'
 import { PageHead } from '../components/ui'
+import { isStaff, can } from '../roles'
 
-// What we ask for depends on who is joining. Organisations give a registration
-// number so a reviewer can check they are real before they appear on the case page.
-const kinds = {
-  Individual: { icon: User, hint: 'Lawyer, researcher, local resident, student', name: 'Full name', org: null, regLabel: null },
-  Company: { icon: Building2, hint: 'Business offering skills, tools or funds', name: 'Contact person', org: 'Company name', regLabel: 'CIN or GST number' },
-  Institute: { icon: Landmark, hint: 'University, NGO, trust, research body', name: 'Contact person', org: 'Institute or NGO name', regLabel: 'Registration number (society, trust or UGC)' },
-}
-const blank = { name: '', org: '', reg: '', email: '', phone: '', place: '', web: '', help: [], msg: '', agree: false }
-
+// Joining needs an account (see Register). The form only asks how you can help on THIS issue;
+// who you are comes from your account, so one person or institute can join many issues.
 export default function Join() {
   const { id } = useParams(); const issue = issues.find(x => x.id === id) || issues[0]
-  const [kind, setKind] = useState('Individual'); const [f, setF] = useState(blank)
-  const [tried, setTried] = useState(false); const [done, setDone] = useState(false)
-  const k = kinds[kind]
-  const set = key => e => setF({ ...f, [key]: e.target.value })
-  const toggle = h => setF({ ...f, help: f.help.includes(h) ? f.help.filter(x => x !== h) : [...f.help, h] })
-
-  const errors = {
-    name: !f.name.trim() && 'Required',
-    org: k.org && !f.org.trim() && 'Required',
-    reg: k.regLabel && !f.reg.trim() && 'Required so a reviewer can verify you',
-    email: !/^\S+@\S+\.\S+$/.test(f.email) && 'Enter a valid email',
-    help: !f.help.length && 'Pick at least one way you can help',
-    agree: !f.agree && 'Please confirm to continue',
+  const { me } = useAuth()
+  const [help, setHelp] = useState(() => [...new Set(issue.help.flatMap(n => needToKinds[n] || []))])
+  const [msg, setMsg] = useState(''); const [agree, setAgree] = useState(false)
+  const [tried, setTried] = useState(false); const [done, setDone] = useState(false); const [serverErr, setServerErr] = useState('')
+  const toggle = h => setHelp(help.includes(h) ? help.filter(x => x !== h) : [...help, h])
+  const errors = { help: !help.length && 'Pick at least one way you can help', agree: !agree && 'Please confirm to continue' }
+  const err = k => tried && errors[k] && <small style={{ color: 'var(--sig)', display: 'block', marginTop: 6 }}>{errors[k]}</small>
+  const next = encodeURIComponent(`/issues/${issue.id}/join`)
+  const pending = me?.type === 'Institute' && me.status === 'Pending review'
+  if (isStaff(me)) return <><PageHead eyebrow="Act" title="Join this issue" sub={`Help with ${issue.name}.`} /><div className="wrap" style={{ margin: '28px auto 60px', maxWidth: 640 }}><div className="card">Staff accounts ({me.type}) run the site and do not join issues. <Link to={can(me, 'admin.panel') ? '/admin' : '/reviewer'} style={{ textDecoration: 'underline' }}>Open your dashboard</Link>.</div></div></>
+  // TODO: with a backend this is POST /issues/:id/assignments for the signed-in account.
+  const submit = () => {
+    setTried(true); if (Object.values(errors).some(Boolean)) return
+    const m = auth.join(issue.id, msg.trim() || `Offering: ${help.join(', ').toLowerCase()}.`)
+    m ? setServerErr(m) : setDone(true)
   }
-  const bad = Object.values(errors).some(Boolean)
-  const err = key => tried && errors[key] && <small style={{ color: 'var(--sig)', display: 'block', marginTop: 6 }}>{errors[key]}</small>
-  // TODO: no backend yet. Submit should POST { issueId, kind, ...f } to a registrations endpoint.
-  const submit = () => { setTried(true); if (!bad) setDone(true) }
-
   return (
     <>
-      <PageHead eyebrow="Act" title="Join this issue" sub={`Register to help with ${issue.name}.`} />
+      <PageHead eyebrow="Act" title="Join this issue" sub={`Help with ${issue.name}.`} />
       <div className="wrap side" style={{ margin: '28px auto 60px' }}>
         <div className="card">
-          {done ? (
+          {!me ? (
+            <div style={{ textAlign: 'center', padding: 20 }}>
+              <h2 style={{ fontSize: 24 }}>Log in to join</h2>
+              <p style={{ margin: '12px 0 22px', color: 'var(--mute)' }}>You need an account so one profile can join many issues. Register as a user, or register your institute.</p>
+              <div className="row" style={{ gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link to={`/login?next=${next}`} className="btn primary">Log in</Link>
+                <Link to={`/register?next=${next}`} className="btn ghost">Create an account</Link>
+              </div>
+            </div>
+          ) : done ? (
             <motion.div initial={{ scale: .9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} style={{ textAlign: 'center', padding: 20 }}>
               <div className="iconbox" style={{ margin: '0 auto 14px', width: 64, height: 64, borderRadius: '50%', background: 'var(--g1)', color: '#fff' }}><Check size={32} /></div>
-              <h2 style={{ fontSize: 26 }}>Registration received</h2>
-              <p style={{ margin: '12px 0 22px', color: 'var(--mute)' }}>A reviewer will check your details and then list you under Contributors on {issue.name}.</p>
-              <Link to={`/issues/${issue.id}`} className="btn primary">Back to the issue</Link>
+              <h2 style={{ fontSize: 26 }}>You are on {issue.name}</h2>
+              <p style={{ margin: '12px 0 22px', color: 'var(--mute)' }}>{pending ? 'Your institute is listed as “Pending review” until a reviewer checks it.' : 'You now appear under People on this issue.'}</p>
+              <div className="row" style={{ gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}><Link to={`/issues/${issue.id}?tab=Solution`} className="btn primary">Pick up a task</Link><Link to={`/issues/${issue.id}`} className="btn ghost">Back to the issue</Link><Link to="/me" className="btn ghost">Your space</Link></div>
             </motion.div>
           ) : <>
-            <div className="field"><span>I am joining as</span>
-              <div className="seg">{Object.entries(kinds).map(([n, v]) => { const I = v.icon; return <button key={n} type="button" className={kind === n ? 'on' : ''} onClick={() => setKind(n)}><I size={20} />{n}<small>{v.hint}</small></button> })}</div>
-            </div>
-            {k.org && <label className="field"><span>{k.org}</span><input value={f.org} onChange={set('org')} />{err('org')}</label>}
-            {k.regLabel && <label className="field"><span>{k.regLabel}</span><input value={f.reg} onChange={set('reg')} />{err('reg')}</label>}
-            <label className="field"><span>{k.name}</span><input value={f.name} onChange={set('name')} />{err('name')}</label>
-            <label className="field"><span>Email</span><input type="email" value={f.email} onChange={set('email')} placeholder="you@example.org" />{err('email')}</label>
-            <label className="field"><span>Phone (optional)</span><input type="tel" value={f.phone} onChange={set('phone')} /></label>
-            <label className="field"><span>City and state</span><input value={f.place} onChange={set('place')} placeholder="e.g. Pune, Maharashtra" /></label>
-            {kind !== 'Individual' && <label className="field"><span>Website (optional)</span><input value={f.web} onChange={set('web')} placeholder="https://…" /></label>}
+            <p style={{ color: 'var(--mute)' }}>Joining as <b style={{ color: 'var(--ink)' }}>{me.name}</b> ({me.type === 'Institute' ? 'institute' : 'user'}).</p>
             <div className="field"><span>How can you help?</span>
-              <div className="checks">{helpKinds.map(h => <button key={h} type="button" className={f.help.includes(h) ? 'on' : ''} onClick={() => toggle(h)}>{h}</button>)}</div>{err('help')}
+              <div className="checks">{helpKinds.map(h => <button key={h} type="button" className={help.includes(h) ? 'on' : ''} onClick={() => toggle(h)}>{h}</button>)}</div>{err('help')}
             </div>
-            <label className="field"><span>Anything else we should know? (optional)</span><textarea rows="3" value={f.msg} onChange={set('msg')} placeholder="Experience, time you can give, tools or funds you can offer" /></label>
-            <label className="agree"><input type="checkbox" checked={f.agree} onChange={e => setF({ ...f, agree: e.target.checked })} /><span>I agree that my name{k.org ? ' and organisation' : ''} may be listed publicly on this issue once a reviewer approves it. My email and phone stay private.</span></label>
+            <label className="field"><span>What will you do on this issue? (optional)</span><textarea rows="3" value={msg} onChange={e => setMsg(e.target.value)} placeholder="Experience, time you can give, tools or funds you can offer" /></label>
+            <label className="agree"><input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} /><span>I agree that my name{me.type === 'Institute' ? ' and organisation' : ''} may be listed publicly on this issue.</span></label>
             {err('agree')}
+            {serverErr && <p style={{ color: 'var(--sig)', marginTop: 10 }}>{serverErr}</p>}
             <div className="row between" style={{ marginTop: 20 }}>
               <Link to={`/issues/${issue.id}`} className="btn ghost">Cancel</Link>
-              <button className="btn primary" onClick={submit}>Submit registration</button>
+              <button className="btn primary" onClick={submit}>Join this issue</button>
             </div>
           </>}
         </div>
         <aside className="card" style={{ alignSelf: 'start', background: 'var(--mint)', borderColor: 'transparent' }}>
           <ShieldCheck color="#1F4D3A" />
-          <p style={{ marginTop: 10, lineHeight: 1.6 }}>Anyone can join: a single person, a company or an institute. Organisations are checked against their registration number before they are listed.</p>
-          <p style={{ marginTop: 12, lineHeight: 1.6, fontSize: 14, color: 'var(--mute)' }}>Once listed, log your work with proof under Progress and evidence so the status stays honest.</p>
+          <p style={{ marginTop: 10, lineHeight: 1.6 }}>Anyone can join: a single person or an institute. Institutes are checked against their registration number and show as “Pending review” until then.</p>
+          <p style={{ marginTop: 12, lineHeight: 1.6, fontSize: 14, color: 'var(--mute)' }}>Once on an issue, log your work with proof under Progress and Evidence so the status stays honest.</p>
         </aside>
       </div>
     </>
