@@ -12,13 +12,16 @@ const projection = geoMercator().fitExtent([[20, 20], [W - 20, H - 20]], india)
 const path = geoPath(projection)
 export const project = (lon, lat) => projection([lon, lat])
 
-// Forest cover % for a state in a given year: linear between report years, held flat outside them.
-const [Y0, Y1] = forestMeta.years
+// Forest cover % for a state in a given year: linear between that state's report years, held flat outside them.
+export const [FIRST_YEAR, LAST_YEAR] = [forestMeta.years[0], forestMeta.years[forestMeta.years.length - 1]]
 export function forestAt(name, year) {
   const f = forestCover[name]
   if (!f) return null
-  const t = Math.min(1, Math.max(0, (year - Y0) / (Y1 - Y0)))
-  return f[Y0] + (f[Y1] - f[Y0]) * t
+  const ys = Object.keys(f).map(Number).sort((a, b) => a - b)
+  if (year <= ys[0]) return f[ys[0]]
+  if (year >= ys[ys.length - 1]) return f[ys[ys.length - 1]]
+  const hi = ys.findIndex(y => y >= year), a = ys[hi - 1], b = ys[hi]
+  return f[a] + (f[b] - f[a]) * ((year - a) / (b - a))
 }
 
 // Pale to deep green. The square root spreads the many low-cover states (Punjab 4%, Kerala 50%, Mizoram 87%)
@@ -30,7 +33,25 @@ export const forestColor = pct => {
 }
 export const FOREST_RAMP = `linear-gradient(90deg, ${[0, 5, 15, 30, 50, 90].map((p, i, a) => `${forestColor(p)} ${(i / (a.length - 1)) * 100}%`).join(', ')})`
 
-export default function IndiaMap({ year, children }) {
+// "Change" view: each state is compared with its own first report year (2015, or 2017 where 2015 is missing).
+// Real shifts are only 1-7 points, so a diverging scale (orange = lost, green = gained) makes them visible.
+export const CHANGE_MAX = 6 // points of forest cover at full colour strength
+const NEUTRAL = [238, 236, 226], GAIN = [20, 128, 62], LOSS = [224, 92, 28]
+export function baselineYear(name) {
+  const f = forestCover[name]
+  return f ? Math.min(...Object.keys(f).map(Number)) : null
+}
+export function changeAt(name, year) {
+  const b = baselineYear(name)
+  return b == null ? null : forestAt(name, year) - forestAt(name, b)
+}
+export const changeColor = d => {
+  const t = Math.sqrt(Math.min(1, Math.abs(d) / CHANGE_MAX)), to = d >= 0 ? GAIN : LOSS
+  return `rgb(${NEUTRAL.map((n, i) => Math.round(n + (to[i] - n) * t)).join(',')})`
+}
+export const CHANGE_RAMP = `linear-gradient(90deg, ${changeColor(-CHANGE_MAX)}, ${changeColor(0)} 50%, ${changeColor(CHANGE_MAX)})`
+
+export default function IndiaMap({ year, mode = 'cover', children }) {
   const d = useMemo(() => path(india), [])
   const grid = useMemo(() => path(geoGraticule10()), [])
   const regions = useMemo(() => states.features.map(f => ({ name: f.properties.name, d: path(f) })), [])
@@ -44,10 +65,13 @@ export default function IndiaMap({ year, children }) {
         <g clipPath="url(#india-clip)">
           {regions.map(r => {
             const pct = forestAt(r.name, year)
+            const dl = mode === 'change' ? changeAt(r.name, year) : null
+            const fill = pct == null ? '#E4E1D6' : mode === 'change' ? changeColor(dl) : forestColor(pct)
+            const tip = pct == null ? `${r.name}: no data`
+              : `${r.name}: ${pct.toFixed(1)}% forest cover` + (mode === 'change' ? ` (${dl >= 0 ? '+' : ''}${dl.toFixed(1)} pts since ${baselineYear(r.name)})` : '')
             return (
-              <path key={r.name} d={r.d} className="forest-state" strokeLinejoin="round"
-                fill={pct == null ? '#E4E1D6' : forestColor(pct)}>
-                <title>{pct == null ? `${r.name}: no data` : `${r.name}: ${pct.toFixed(1)}% forest cover`}</title>
+              <path key={r.name} d={r.d} className="forest-state" strokeLinejoin="round" fill={fill}>
+                <title>{tip}</title>
               </path>
             )
           })}

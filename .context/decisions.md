@@ -32,3 +32,15 @@ Format: `## [YYYY-MM-DD] ADR-00N — Title`
   zero infrastructure.
 - **Consequences:** requires discipline at session end (mitigated by hooks); does not
   scale past ~1000 pages (not a concern at current size).
+
+---
+
+## [2026-10-31] ADR-002 — Demo forest layer on unverified secondary data
+
+- **Status:** Accepted (temporary)
+- **Type:** product / data
+- **Context:** Map needs per-state forest cover by year; official FSI sources were unreachable and the only full tables were on Wikipedia, partly corrupted.
+- **Options:** Wikipedia 2015+2017 cross-checked · wait for ISFR PDFs · placeholder sample data
+- **Decision:** ship 2015 and 2017 only, cross-checked, flagged Unverified in the UI; hold flat after 2017.
+- **Why:** real and honest for a demo, two true time points beat invented ones; PRD requires traceable sources.
+- **Consequences:** must be replaced with ISFR 2019/2021/2023 before publishing; slider after 2017 shows no change.

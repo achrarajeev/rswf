@@ -27,6 +27,7 @@
 - Never rename an API route. Add the new one and deprecate the old.
 - Always verify migration ordering before generating a migration.
 - Never modify tax/GST validation without asking — the rules are not all in code.
+- Never ship third-party-sourced figures without an Unverified flag and a cross-check; secondary tables can be corrupted.
 
 ---
 
@@ -50,8 +51,11 @@
 - [2026-10-28] Nav burger pushed off-screen at 360px after adding nav search → later `.nav .search{display:flex}` overrode the mobile hide; add `display:none!important` in the 900px block (`src/styles.css`) [#mobile #css]
 - [2026-10-28] Mobile `position:fixed` scrim doesn't dim the page → parent `backdrop-filter` becomes the containing block; render the scrim outside it (`src/components/Layout.jsx`) [#css #mobile]
 - [2026-10-28] Grid tile rule like `:first-child{grid-column:1/-1}` ignored on mobile → items are wrapped in Reveal divs; style by class and use `!important` over inline grids (`src/styles.css`) [#css #mobile]
+- [2026-10-31] Wikipedia ISFR state forest-cover table values contradict each other (Kerala 2017 vs 2021, Ladakh 1.35% vs 77.77%); RBI/data.gov.in unreachable → recompute % from density-class sums, check vs published total and 2017 minus "change since 2015"; drop rows that fail (`src/forest.js`) [#data #forest #isfr]
+- [2026-10-31] fsi.nic.in/isfr-2021/chapter-2.pdf is really ISFR 2023; WebFetch/RBI/data.gov.in fail but `curl -A Mozilla/5.0` + `pdftotext -layout` get the official tables; 2019 and 2023 tables order J&K/Ladakh differently (check state-order alignment with totals) (`src/forest.js`) [#data #isfr #pdf]
 
 ---
+- [2026-10-31] forest map looks the same when sliding years → absolute shading hides 1-7 pt changes; show a diverging change-vs-baseline view (`src/components/IndiaMap.jsx`) [#map #dataviz]
 
 ## Incidents
 

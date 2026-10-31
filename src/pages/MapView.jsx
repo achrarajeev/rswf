@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin } from 'lucide-react'
 import { issues } from '../data'
 import { PageHead, Status, Trust } from '../components/ui'
-import IndiaMap, { project, FOREST_RAMP } from '../components/IndiaMap'
+import IndiaMap, { project, FOREST_RAMP, CHANGE_RAMP, CHANGE_MAX, LAST_YEAR } from '../components/IndiaMap'
 import { forestMeta } from '../forest'
 
 const layers = ['All', 'Forest', 'Rivers', 'Lakes', 'Wildlife']
@@ -24,7 +24,7 @@ function cluster(list) {
 }
 
 export default function MapView() {
-  const [layer, setLayer] = useState('All'); const [year, setYear] = useState(2026); const [selKey, setSelKey] = useState(null)
+  const [layer, setLayer] = useState('All'); const [year, setYear] = useState(2026); const [selKey, setSelKey] = useState(null); const [fmode, setFmode] = useState('change')
   const shown = issues.filter(i => (layer === 'All' || i.eco === layer) && i.since <= year)
   const clusters = useMemo(() => cluster(shown), [layer, year])
   const sel = clusters.find(c => c.items.map(i => i.id).join() === selKey) || clusters[0]
@@ -37,7 +37,7 @@ export default function MapView() {
           <div className="filters" style={{ margin: '0 0 16px' }}>{layers.map(l => <button key={l} className={`fbtn ${layer === l ? 'on' : ''}`} onClick={() => setLayer(l)}>{l}</button>)}</div>
           <div className="mapbox" style={{ display: 'grid', placeItems: 'center' }}>
             <div style={{ position: 'relative', height: '100%', aspectRatio: '600/680' }}>
-              <IndiaMap year={year} />
+              <IndiaMap year={year} mode={fmode} />
               <AnimatePresence>
                 {clusters.map(c => { const multi = c.items.length > 1; const col = multi ? '#0f4c4f' : trendCol[c.items[0].trend]; const on = sel && key(sel) === key(c); return (
                   <motion.button key={key(c)} className={`marker ${multi ? 'cl' : ''}`} aria-label={multi ? `${c.items.length} cases` : c.items[0].name} onClick={() => setSelKey(key(c))}
@@ -53,10 +53,19 @@ export default function MapView() {
           <div className="forest-key">
             <div className="row" style={{ gap: 10, alignItems: 'center' }}>
               <b>Forest cover by state</b><Trust t={forestMeta.trust} />
+              <span className="filters" style={{ margin: '0 0 0 auto' }}>
+                {[['change', 'Change'], ['cover', 'Cover']].map(([k, t]) => <button key={k} className={`fbtn ${fmode === k ? 'on' : ''}`} onClick={() => setFmode(k)}>{t}</button>)}
+              </span>
             </div>
-            <div className="forest-ramp" style={{ background: FOREST_RAMP }} role="img" aria-label="Forest cover scale from 0 to 90 percent or more" />
-            <div className="forest-scale"><span>0%</span><span>30%</span><span>90%+</span></div>
-            <small>{year > forestMeta.years[1] ? `Reports after ${forestMeta.years[1]} are not loaded yet, so the shading holds at ${forestMeta.years[1]}. ` : year > forestMeta.years[0] && year < forestMeta.years[1] ? 'Between report years the shading is blended. ' : ''}Source: {forestMeta.src}. {forestMeta.note}</small>
+            {fmode === 'change' ? <>
+              <div className="forest-ramp" style={{ background: CHANGE_RAMP }} role="img" aria-label={`Change in forest cover since first report year, from minus ${CHANGE_MAX} to plus ${CHANGE_MAX} percentage points`} />
+              <div className="forest-scale"><span>−{CHANGE_MAX} pts lost</span><span>no change</span><span>+{CHANGE_MAX} pts gained</span></div>
+              <small>Compared with each state's own first report year (2015, or 2017 where 2015 is missing). </small>
+            </> : <>
+              <div className="forest-ramp" style={{ background: FOREST_RAMP }} role="img" aria-label="Forest cover scale from 0 to 90 percent or more" />
+              <div className="forest-scale"><span>0%</span><span>30%</span><span>90%+</span></div>
+            </>}
+            <small>{year > LAST_YEAR ? `No newer forest report yet, so the shading holds at ${LAST_YEAR}. ` : forestMeta.years.includes(year) ? `Report year ${year}. ` : `${year} is between report years (${forestMeta.years.filter(y => y < year).pop()} and ${forestMeta.years.find(y => y > year)}), so the shading is blended. `}Source: {forestMeta.src}. {forestMeta.note}</small>
           </div>
         </div>
 
