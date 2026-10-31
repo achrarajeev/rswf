@@ -35,3 +35,10 @@
 - Added `changeAt`/`changeColor` in `IndiaMap.jsx` and a Change/Cover toggle in `MapView.jsx`: green = gained, orange = lost, baseline = each state's first report year.
 - Reason: absolute shading barely moved between 2015 and 2023 (real changes are 1-7 pts), so the slider looked static.
 - Open: `/verify` and commit; official 2015 column; map holds flat after 2023.
+
+## [2026-10-31] session | Issue contributors, evidence, join form
+
+- Replaced the "People and lawyers" tab with Contributors (filter by Individual/Company/Institute) and Progress and evidence (current status + dated, sourced timeline). Sample data for `saidongar` only, labelled illustrative.
+- Added `Join.jsx` at `/issues/:id/join`: kind-dependent fields, registration number for organisations, validation, consent for public listing. Volunteer button now links to it.
+- Decided: unsourced progress updates are not shown; organisations are listed only after reviewer approval.
+- Open: browser/mobile check, persistence for registrations (TODO in `Join.jsx`), proof-logging flow.
