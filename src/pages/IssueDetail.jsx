@@ -1,19 +1,27 @@
 import { useState, useRef } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Hand, HandCoins, User, Building2, Landmark, Scale, Flame, UserPlus, CalendarDays } from 'lucide-react'
-import { issues, claims, threads, contributors, progress } from '../data'
+import { Hand, HandCoins, Upload, Video, FileText, Radio, Image as ImageIcon, User, Landmark, Scale, Flame, UserPlus, CalendarDays, ShieldCheck } from 'lucide-react'
+import { issues, claims, peopleOnIssue, progress, legal, impact, evidenceTypes } from '../data'
+import { useThreads, replyCount } from '../forumStore'
+import { useAuth } from '../authStore'
+import { useSubmissions, evidenceFor } from '../evidenceStore'
+import Solution from './Solution'
 import { Status, Trust, Source, PhotoCredit, Missing, ShareButton } from '../components/ui'
 
-const tabs = ['Overview', 'Legal', 'Emissions and biodiversity', 'Contributors', 'Progress and evidence', 'Sources', 'Discussion']
-const kindIcon = { Individual: User, Company: Building2, Institute: Landmark }
+const tabs = ['Overview', 'Solution', 'Legal', 'Emissions and biodiversity', 'People', 'Progress', 'Evidence', 'Sources', 'Discussion']
+const evIcon = { Video, Document: FileText, 'Live recording': Radio, Photo: ImageIcon }
+const kindIcon = { Volunteer: User, Institute: Landmark }
+const kindLabel = { All: 'All', Volunteer: 'Volunteers', Institute: 'Institutes' }
 const steps = ['Proposed', 'Under clearance', 'Cleared', 'In court', 'Stopped']
 
 export default function IssueDetail() {
   const { id } = useParams(); const i = issues.find(x => x.id === id) || issues[0]
-  const full = i.id === 'saidongar' // only this case has sourced sample detail
-  const [tab, setTab] = useState('Overview'); const [kind, setKind] = useState('All')
-  const people = contributors[i.id] || [], updates = progress[i.id] || []
+  const [etype, setEtype] = useState('All'); const [donate, setDonate] = useState(false); const [params] = useSearchParams(); const [tab, setTab] = useState(tabs.includes(params.get('tab')) ? params.get('tab') : 'Overview'); const [kind, setKind] = useState('All')
+  const { me } = useAuth() // re-render when someone joins
+  const people = peopleOnIssue(i.id), updates = progress[i.id] || []
+  const proofs = evidenceFor(useSubmissions(), i.id), shownProofs = etype === 'All' ? proofs : proofs.filter(e => e.type === etype)
+  const caseThreads = useThreads().filter(t => t.case === i.id && !t.hidden), lg = legal[i.id], im = impact[i.id]
   const shown = kind === 'All' ? people : people.filter(p => p.kind === kind); const idx = steps.indexOf(i.status)
   const ref = useRef(null); const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '16%'])
@@ -41,36 +49,59 @@ export default function IssueDetail() {
                 <div><div className="mono" style={{ opacity: .7 }}>Independent evidence</div><div className="head" style={{ fontSize: 64, margin: '14px 0 6px', lineHeight: 1, color: 'var(--g1)' }}>{i.hectares} ha</div><p style={{ opacity: .75 }}>including 6 perennial streams, per forest survey.</p><div style={{ marginTop: 16 }}><Source>RTI reply, 12 Aug 2026</Source> <Trust t="High" /></div></div>
               </div>
             </>}
-            {tab === 'Legal' && !full && <Missing what="Legal record" />}
-            {tab === 'Legal' && full && <div className="card"><Scale size={20} /><p style={{ margin: '12px 0' }}>Stage-I forest clearance pending. NGT Pune hearing listed.</p><Source>News report, 19 Sep 2026</Source><p style={{ marginTop: 16, color: 'var(--sig)' }}>Missing: gram sabha consent record. Help needed to obtain via RTI.</p></div>}
-            {tab === 'Emissions and biodiversity' && !full && <Missing what="Emissions and biodiversity data" />}
-            {tab === 'Emissions and biodiversity' && full && <div className="grid g2"><div className="card"><Flame color="#E0471B" /><h3 style={{ fontSize: 56, margin: '12px 0' }}>1.9 Mt</h3><p>CO₂e estimated from cleared canopy</p><Source>Sample estimate</Source></div><div className="card"><h3 style={{ fontSize: 56, margin: '34px 0 12px' }}>14</h3><p>Schedule-I species recorded nearby</p><Source>Local survey (sample)</Source></div></div>}
-            {tab === 'Contributors' && <>
+            {tab === 'Solution' && <Solution issue={i} me={me} />}
+            {tab === 'Legal' && (lg ? <div className="card"><Scale size={20} /><p style={{ margin: '12px 0' }}>{lg.text}</p><Source>{lg.src}</Source><p style={{ marginTop: 16, color: 'var(--sig)' }}>{lg.gap}</p></div> : <Missing what="Legal record" />)}
+            {tab === 'Emissions and biodiversity' && (im ? <div className="grid g2"><div className="card"><Flame color="#E0471B" /><h3 style={{ fontSize: 56, margin: '12px 0' }}>{im.co2}</h3><p>{im.co2Note}</p><Source>{im.co2Src}</Source></div><div className="card"><h3 style={{ fontSize: 56, margin: '34px 0 12px' }}>{im.species}</h3><p>{im.speciesNote}</p><Source>{im.speciesSrc}</Source></div></div> : <Missing what="Emissions and biodiversity data" />)}
+            {tab === 'People' && <>
               <div className="row between" style={{ flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
-                <p style={{ color: 'var(--mute)' }}>{people.length ? `${people.length} people and organisations are working on this issue.` : 'Nobody has joined this issue yet.'}</p>
+                <p style={{ color: 'var(--mute)' }}>{people.length ? `${people.length} volunteers and institutes are working on this issue.` : 'Nobody has joined this issue yet.'}</p>
                 <Link to={`/issues/${i.id}/join`} className="btn primary"><UserPlus size={15} /> Join this issue</Link>
               </div>
-              {people.length > 0 && <div className="filters" style={{ marginBottom: 18 }}>{['All', 'Individual', 'Company', 'Institute'].map(k => <button key={k} className={`fbtn ${kind === k ? 'on' : ''}`} onClick={() => setKind(k)}>{k}</button>)}</div>}
-              {people.length === 0 && <Missing what="Contributors">Be the first lawyer, researcher, company or institute to join this case.</Missing>}
-              <div className="grid g2">{shown.map(p => { const K = kindIcon[p.kind]; return <div key={p.name} className="card"><div className="row" style={{ gap: 12 }}><div className="iconbox" style={{ margin: 0 }}><K size={20} /></div><div><b>{p.name}</b><div className="mono" style={{ color: 'var(--mute)' }}>{p.kind} · {p.role}</div></div></div><p style={{ margin: '14px 0 10px' }}>{p.does}</p><span className="chip"><CalendarDays size={11} />Joined {p.joined}</span></div> })}</div>
+              {people.length > 0 && <div className="filters" style={{ marginBottom: 18 }}>{Object.entries(kindLabel).map(([k, l]) => <button key={k} className={`fbtn ${kind === k ? 'on' : ''}`} onClick={() => setKind(k)}>{l}</button>)}</div>}
+              {people.length === 0 && <Missing what="People" cta="Join this case" to={`/issues/${i.id}/join`}>Be the first volunteer or institute to join this case.</Missing>}
+              <div className="grid g2">{shown.map(p => { const K = kindIcon[p.kind]; return <div key={p.kind + p.key} className="card"><div className="row" style={{ gap: 12 }}><div className="iconbox" style={{ margin: 0 }}><K size={20} /></div><div><b>{p.kind === 'Institute' ? <Link to={`/institutes/${p.key}`} style={{ textDecoration: 'underline' }}>{p.name}</Link> : p.name}</b><div className="mono" style={{ color: 'var(--mute)' }}>{p.kind} · {p.sub} · {p.place}</div></div></div><p style={{ margin: '14px 0 10px' }}>{p.does}</p><div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>{p.verified?.map(v => <span key={v} className="chip" style={{ background: '#E3EFE7', color: '#1F4D3A' }}><ShieldCheck size={11} /> Verified {v.toLowerCase()}</span>)}<span className="chip"><CalendarDays size={11} />Joined {p.joined}</span>{p.status !== 'Verified' && p.status !== 'Active' && <span className="chip">{p.status}</span>}{p.others.map(o => <Link key={o} to={`/issues/${o}`} className="chip">Also on {issues.find(x => x.id === o)?.name}</Link>)}</div></div> })}</div>
               {people.length > 0 && <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginTop: 18 }}>Illustrative sample until registrations are verified.</p>}
             </>}
-            {tab === 'Progress and evidence' && <>
+            {tab === 'Progress' && <>
               <div className="card" style={{ background: 'var(--mint)', borderColor: 'transparent', marginBottom: 26 }}>
                 <div className="mono" style={{ color: 'var(--mute)' }}>Current status</div>
                 <div className="row" style={{ gap: 12, flexWrap: 'wrap', margin: '10px 0' }}><Status s={i.status} /><span className="mono">{updates.length ? `Last update ${updates[0].date}` : 'No updates recorded'}</span></div>
                 <p style={{ fontSize: 14 }}>Every update below carries its proof. An update without a source is not shown.</p>
               </div>
-              {updates.length === 0 && <Missing what="Progress record">No contributor has logged work with proof for this case yet.</Missing>}
+              {updates.length === 0 && <Missing what="Progress record" cta="Log progress" to={`/contribute?case=${i.id}`}>No contributor has logged work with proof for this case yet.</Missing>}
               <ol className="proof">{updates.map(u => <li key={u.title}>
                 <div className="card"><div className="row between" style={{ flexWrap: 'wrap', gap: 8 }}><span className="mono" style={{ color: 'var(--mute)' }}>{u.date} · {u.by}</span><Trust t={u.trust} /></div>
                   <h3 style={{ fontSize: 20, margin: '10px 0 6px' }}>{u.title}</h3><p>{u.note}</p>
                   <div className="row" style={{ marginTop: 12, gap: 12 }}><img src={`/images/${u.img}.jpg`} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} /><Source>{u.src}</Source></div></div>
               </li>)}</ol>
-              {updates.length > 0 && <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginTop: 18 }}>Illustrative sample until reviewed. <Link to="/contribute" style={{ color: 'var(--g1)', textDecoration: 'underline' }}>Add proof of progress</Link></p>}
+              {updates.length > 0 && <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginTop: 18 }}>Illustrative sample until reviewed. <Link to="/contribute" style={{ color: 'var(--g1)', textDecoration: 'underline' }}>Add evidence of progress</Link></p>}
+            </>}
+            {tab === 'Evidence' && <>
+              <div className="row between" style={{ flexWrap: 'wrap', gap: 12, marginBottom: 6 }}>
+                <p style={{ color: 'var(--mute)' }}>{proofs.length ? `${proofs.length} items showing work done on this issue.` : 'No evidence of work has been added yet.'}</p>
+                <Link to={`/contribute?case=${i.id}`} className="btn primary"><Upload size={15} /> Add evidence</Link>
+              </div>
+              <p style={{ color: 'var(--mute)', fontSize: 14, marginBottom: 18 }}>Video, documents and live recordings that prove progress updates. Cited claims are under Sources.</p>
+              {proofs.length > 0 && <div className="filters" style={{ marginBottom: 18 }}>{['All', ...evidenceTypes].map(k => <button key={k} className={`fbtn ${etype === k ? 'on' : ''}`} onClick={() => setEtype(k)}>{k}</button>)}</div>}
+              {proofs.length === 0 && <Missing what="Evidence of work">Nothing has been uploaded for this case yet.</Missing>}
+              {proofs.length > 0 && shownProofs.length === 0 && <div className="f-empty">No {etype.toLowerCase()} items for this case.</div>}
+              <div className="grid g2">{shownProofs.map(e => { const T = evIcon[e.type]; return <div key={e.title} className="card">
+                <div style={{ position: 'relative' }}><img src={`/images/${e.img}.jpg`} alt="" style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 14 }} /><span className="chip" style={{ position: 'absolute', left: 10, top: 10, background: '#fff' }}><T size={12} /> {e.type}</span></div>
+                <h3 style={{ fontSize: 18, margin: '12px 0 4px' }}>{e.title}</h3>
+                <div className="mono" style={{ color: 'var(--mute)' }}>{e.by} · {e.date}</div>
+                <p style={{ margin: '10px 0', fontSize: 14 }}>Proves: <b>{e.for}</b></p>
+                <Trust t={e.trust} /></div> })}</div>
+              {proofs.length > 0 && <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginTop: 18 }}>Illustrative sample until reviewed.</p>}
             </>}
             {tab === 'Sources' && <div className="grid">{claims.map(c => <div key={c.text} className="card"><p>{c.text}</p><div className="row" style={{ marginTop: 10 }}><Source>{c.src}</Source><Trust t={c.trust} /></div></div>)}</div>}
-            {tab === 'Discussion' && <div className="grid">{threads.slice(0, 3).map(t => <Link key={t.title} to="/forum" className="card hover">{t.title}<div className="mono" style={{ color: 'var(--mute)', marginTop: 8 }}>{t.replies} replies</div></Link>)}</div>}
+            {tab === 'Discussion' && <>
+              <div className="row between" style={{ flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
+                <p style={{ color: 'var(--mute)' }}>{caseThreads.length ? `${caseThreads.length} threads on this case.` : 'No threads on this case yet.'}</p>
+                <Link to={`/forum/new?case=${i.id}`} className="btn primary">Start a thread</Link>
+              </div>
+              <div className="grid">{caseThreads.map(t => <Link key={t.id} to={`/forum/${t.id}`} className="card hover">{t.title}<div className="mono" style={{ color: 'var(--mute)', marginTop: 8 }}>{replyCount(t)} replies · {t.votes} votes</div></Link>)}</div>
+              {caseThreads.length > 0 && <p style={{ marginTop: 18 }}><Link to={`/forum?case=${i.id}`} style={{ color: 'var(--g1)', textDecoration: 'underline' }}>Open the forum for this case</Link></p>}
+            </>}
           </motion.div>
         </div>
         <aside className="rail" id="help">
@@ -78,7 +109,8 @@ export default function IssueDetail() {
           <p style={{ color: 'var(--mute)', fontSize: 14, marginBottom: 20 }}>Needs: {i.help.join(', ') || 'nothing right now'}</p>
           <div className="grid" style={{ gap: 10 }}>
             <Link to={`/issues/${i.id}/join`} className="btn primary"><Hand size={15} /> Volunteer</Link>
-            <button className="btn warn"><HandCoins size={15} /> Donate</button>
+            <button className="btn warn" onClick={() => setDonate(d => !d)} aria-expanded={donate}><HandCoins size={15} /> Donate</button>
+            {donate && <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none' }}>Donations are not open yet. No payment is taken in this prototype.</p>}
             <ShareButton title={i.name} />
           </div>
         </aside>
