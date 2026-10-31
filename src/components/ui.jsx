@@ -98,8 +98,8 @@ export const Squiggle = () => (
   </svg>
 )
 
-export const Missing = ({ what = 'This data', children }) => (
-  <div className="missing"><SearchX size={22} /><div><b>{what} not found yet</b><p>{children || 'Nobody has added a sourced record for this case. Without a source we do not show a claim.'}</p><Link to="/contribute" className="btn sky">Add evidence</Link></div></div>
+export const Missing = ({ what = 'This data', children, cta = 'Add evidence', to = '/contribute' }) => (
+  <div className="missing"><SearchX size={22} /><div><b>{what} not found yet</b><p>{children || 'Nobody has added a sourced record for this case. Without a source we do not show a claim.'}</p><Link to={to} className="btn sky">{cta}</Link></div></div>
 )
 
 export function ShareButton({ title, className = 'btn ghost' }) {

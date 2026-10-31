@@ -1,8 +1,13 @@
 import { useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowBigUp, ArrowBigDown, MessageSquare, Flag, Pin, Search, PenLine, ShieldCheck, Scale, FlaskConical, MapPin } from 'lucide-react'
-import { threads } from '../data'
+import { issues } from '../data'
+import { useThreads, replyCount, forum } from '../forumStore'
 import { PageHead, Reveal, Counter } from '../components/ui'
+import { useAuth } from '../authStore'
+import { can } from '../roles'
+import { verifiedByName } from '../data'
 
 const roles = {
   Lawyer: { bg: '#E4ECFB', fg: '#2b4f9e', Icon: Scale },
@@ -13,60 +18,58 @@ const roles = {
 const sorts = [['top', 'Top'], ['talk', 'Most discussed']]
 
 export default function Forum() {
-  const [votes, setVotes] = useState(() => Object.fromEntries(threads.map(t => [t.title, t.votes])))
-  const [mine, setMine] = useState({})
+  const all = useThreads(); const { me } = useAuth(); const threads = can(me, 'forum.moderate') ? all : all.filter(t => !t.hidden)
+  const [params, setParams] = useSearchParams(); const cs = params.get('case') || 'All'
   const [sort, setSort] = useState('top')
   const [role, setRole] = useState('All')
   const [q, setQ] = useState('')
+  const setCase = v => setParams(v === 'All' ? {} : { case: v })
+  const issueName = id => issues.find(i => i.id === id)?.name
 
-  const vote = (title, d) => {
-    const cur = mine[title] || 0
-    const next = cur === d ? 0 : d
-    setVotes(v => ({ ...v, [title]: v[title] + next - cur }))
-    setMine(m => ({ ...m, [title]: next }))
-  }
+  const list = useMemo(() => [...threads]
+    .filter(t => (cs === 'All' || t.case === cs) && (role === 'All' || t.role === role) && t.title.toLowerCase().includes(q.toLowerCase()))
+    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (sort === 'top' ? b.votes - a.votes : replyCount(b) - replyCount(a))),
+  [threads, sort, role, q, cs])
 
-  const list = useMemo(() => threads
-    .filter(t => (role === 'All' || t.role === role) && t.title.toLowerCase().includes(q.toLowerCase()))
-    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (sort === 'top' ? votes[b.title] - votes[a.title] : b.replies - a.replies)),
-  [sort, role, q, votes])
-
-  const totalReplies = threads.reduce((n, t) => n + t.replies, 0)
+  const totalReplies = threads.reduce((n, t) => n + replyCount(t), 0)
+  const newTo = cs === 'All' ? '/forum/new' : `/forum/new?case=${cs}`
 
   return (
     <>
-      <PageHead eyebrow="Discuss" title="Forum" sub="Saidongar Pumped Storage. Posts can be reported to moderators." />
+      <PageHead eyebrow="Discuss" title="Forum" sub={cs === 'All' ? 'Discussion across all cases. Posts can be reported to moderators.' : `${issueName(cs)}. Posts can be reported to moderators.`} />
       <div className="wrap forum">
         <div className="f-main">
           <div className="f-tools">
             <label className="f-search"><Search size={18} /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search threads" aria-label="Search threads" /></label>
             <div className="f-seg">{sorts.map(([k, l]) => <button key={k} className={sort === k ? 'on' : ''} onClick={() => setSort(k)}>{l}</button>)}</div>
           </div>
+          <div className="f-tools"><label className="field" style={{ margin: 0, flex: 1 }}><span>Case</span><select value={cs} onChange={e => setCase(e.target.value)}><option value="All">All cases</option>{issues.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}</select></label></div>
           <div className="f-chips">
             {['All', ...Object.keys(roles)].map(r => <button key={r} className={`fbtn ${role === r ? 'on' : ''}`} onClick={() => setRole(r)}>{r}</button>)}
           </div>
 
           <AnimatePresence mode="popLayout">
             {list.map((t, k) => {
-              const R = roles[t.role]; const my = mine[t.title] || 0
+              const R = roles[t.role]; const my = t.myVote
               return (
-                <motion.article layout key={t.title} className={`thread ${t.pinned ? 'pin' : ''}`} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .96 }} transition={{ delay: k * .05, duration: .45 }}>
+                <motion.article layout key={t.id} className={`thread ${t.pinned ? 'pin' : ''}`} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .96 }} transition={{ delay: k * .05, duration: .45 }}>
                   <div className="vote2">
-                    <button className={my === 1 ? 'on' : ''} onClick={() => vote(t.title, 1)} aria-label="Upvote"><ArrowBigUp size={22} /></button>
-                    <b>{votes[t.title]}</b>
-                    <button className={my === -1 ? 'down' : ''} onClick={() => vote(t.title, -1)} aria-label="Downvote"><ArrowBigDown size={22} /></button>
+                    <button className={my === 1 ? 'on' : ''} onClick={() => forum.vote(t.id, 1)} aria-label="Upvote"><ArrowBigUp size={22} /></button>
+                    <b>{t.votes}</b>
+                    <button className={my === -1 ? 'down' : ''} onClick={() => forum.vote(t.id, -1)} aria-label="Downvote"><ArrowBigDown size={22} /></button>
                   </div>
                   <div className="t-body">
                     {t.pinned && <span className="t-pin"><Pin size={13} /> Pinned by moderators</span>}
-                    <h3>{t.title}</h3>
+                    <h3><Link to={`/forum/${t.id}`}>{t.title}</Link></h3>
                     <div className="t-meta">
                       <span className="avatar" style={{ background: R.bg, color: R.fg }}>{t.author[0].toUpperCase()}</span>
-                      <span>{t.author}</span>
+                      <span>{t.author}</span>{verifiedByName(t.author).length > 0 && <span className="pill" style={{ background: '#E3EFE7', color: '#1F4D3A' }}><ShieldCheck size={12} /> Verified {verifiedByName(t.author)[0].toLowerCase()}</span>}
                       <span className="pill" style={{ background: R.bg, color: R.fg }}><R.Icon size={12} /> {t.role}</span>
-                      <span className="t-rep"><MessageSquare size={14} /> {t.replies} replies</span>
+                      <Link to={`/issues/${t.case}`} className="chip">{issueName(t.case)}</Link>
+                      <span className="t-rep"><MessageSquare size={14} /> {replyCount(t)} replies</span>
                     </div>
                   </div>
-                  <button className="t-flag" title="Report to moderators" aria-label="Report"><Flag size={16} /></button>
+                  <button className={`t-flag ${t.reported ? 'on' : ''}`} title={t.reported ? 'Reported to moderators' : 'Report to moderators'} aria-label={t.reported ? 'Reported' : 'Report'} disabled={t.reported} onClick={() => forum.report(t.id)}><Flag size={16} /></button>
                 </motion.article>)
             })}
           </AnimatePresence>
@@ -78,7 +81,7 @@ export default function Forum() {
             <span className="iconbox"><PenLine size={22} /></span>
             <h3>Start a thread</h3>
             <p>Ask for a cross-check, share a field note or request an RTI template.</p>
-            <button className="btn primary">New thread</button>
+            <Link to={newTo} className="btn primary">New thread</Link>
           </div></Reveal>
           <Reveal delay={.1}><div className="f-card stats">
             <div><Counter to={threads.length} /><small>threads</small></div>
