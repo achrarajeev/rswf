@@ -27,6 +27,7 @@
 - Never rename an API route. Add the new one and deprecate the old.
 - Always verify migration ordering before generating a migration.
 - Never modify tax/GST validation without asking — the rules are not all in code.
+- Always branch from `dev` and PR into `dev`; never push or merge feature branches straight into `main`.
 - Never ship third-party-sourced figures without an Unverified flag and a cross-check; secondary tables can be corrupted.
 
 ---
@@ -58,6 +59,8 @@
 - [2026-10-31] forest map looks the same when sliding years → absolute shading hides 1-7 pt changes; show a diverging change-vs-baseline view (`src/components/IndiaMap.jsx`) [#map #dataviz]
 - [2026-10-31] browser test returns "[BLOCKED: Cookie/query string data]" and no output → script echoed a URL containing `?`; return only booleans/text, never `location.hash` with a query [#testing #browser]
 - [2026-10-31] test regex on a page title never matches (e.g. "This thread was removed") → `PageHead` splits the title into per-word spans, so `innerText` has no spaces; match a body sentence instead (`src/components/ui.jsx`) [#testing]
+- [2026-11-02] `gh pr create` prints "To get started with GitHub CLI, please run: gh auth login" → not logged in; run `! gh auth login` or open the compare URL in the browser [#git #setup]
+- [2026-11-02] push of `origin/main` to `dev` finishes but `origin/main` has moved on (PR merged meanwhile) → `git fetch`, check `rev-list --left-right --count`, push again; fast-forward only [#git]
 
 ## Incidents
 

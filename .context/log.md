@@ -48,3 +48,9 @@
 - Added `roles.js` permission table, `/admin` (overview, users, moderation, audit log), staff invite, suspension, and verified Lawyer/Local researcher badges.
 - Decided: staff roles are invite-only; Reviewer, Moderator and Admin stay separate (ADR-004). Backend deferred until flows are final.
 - Open: nothing committed yet, 360px check of new pages, reject-path tests, unfilled CLAUDE.md placeholders.
+
+## [2026-11-03] session | README, docs, dev branching
+- Added root `README.md`, `docs/google-doc-snapshot.md` and an extended docs index; merged into `main` via PR #8, then `dev` via PR #9.
+- Merged `origin/dev` and `main` into the working branch (fast-forwards only); made `dev` identical to `main` by a non-force push.
+- Decided: feature → `dev` → `main` workflow (ADR-005); README has a Branching section.
+- Open: `dev`→`main` PR, branch protection on `main`, `docs/api.md`, `gh` login.
