@@ -8,6 +8,7 @@ Index
 
 5. [Google Doc snapshot](google-doc-snapshot.md): copy of the living doc (vision, team roles, pending list), imported 2026-10-31
 6. [API notes](api.md): backend endpoints derived from the `TODO` comments in `src/*Store.js` (to write)
+7. [ForThePeople.in reference analysis](reference/forthepeople-analysis.md): vision, what to copy from the reference site and how, next changes to our code; survey notes in [reference/forthepeople/](reference/forthepeople/)
 
 Conventions: one topic per file; architectural decisions go in `../.context/decisions.md`; designs and screenshots in `docs/assets/`.
 
