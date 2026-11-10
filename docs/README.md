@@ -10,6 +10,8 @@ Index
 6. [API notes](api.md): backend endpoints derived from the `TODO` comments in `src/*Store.js` (to write)
 7. [ForThePeople.in reference analysis](reference/forthepeople-analysis.md): vision, what to copy from the reference site and how, next changes to our code; survey notes in [reference/forthepeople/](reference/forthepeople/)
 
+8. [Vision and plan](vision-and-plan.md): the vision, where we are, four phases with exit checks, decisions needed, risks, change log
+
 Conventions: one topic per file; architectural decisions go in `../.context/decisions.md`; designs and screenshots in `docs/assets/`.
 
 Status markers: `[proposed]` an idea, `[agreed]` the team backed it, `[deferred]` parked.
