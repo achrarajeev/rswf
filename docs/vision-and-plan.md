@@ -40,7 +40,7 @@ Model: ForThePeople.in (MIT licence). We copy its functionality and its honesty 
 
 ## 2. Plan to achieve the vision
 
-Four steps, in this order. Each step needs the one before it.
+Four steps, in this order. Each step needs the one before it. Before building any feature, check [what already exists](reference/landscape.md): where a site already does the job (for example NGO financial profiles or land-conflict research), we link to it instead of rebuilding.
 
 | Step | What | Done when |
 |---|---|---|
@@ -102,6 +102,7 @@ The base list is public data. An NGO then takes control of its own page:
 
 Start only when 2.1 to 2.3 work, so visitors find real content.
 - **Message for individuals:** "See a problem near you this weekend? Find the NGO that works on it nearby, see what funds it has, contact it, and check later whether it responded." The site shows which NGO can take care of which problem, so the visitor reaches the right NGO at the right time.
+- **Value and message bank:** what RSWF offers each audience, feature status, ready lines, post ideas and words to avoid are in [value-and-messaging.md](value-and-messaging.md).
 - **What we ask of them:** spot and post a problem with evidence; contact the nearby NGO; come back and rate whether the response met the promise.
 - **Channels:** Instagram and other social accounts. Short posts that explain what the site does and what we need from people. Content ideas: one real local problem and the NGOs near it; "how to check an NGO in 2 minutes"; a weekly "problem of the week".
 - **Partners:** institutes such as Hima's, RSWF projects, volunteers' networks, local leaders.
@@ -250,6 +251,7 @@ Append a row when the plan changes. State the reason.
 
 | Date | Change | Reason |
 |---|---|---|
+| 2026-11-10 | Added the landscape check ([reference/landscape.md](reference/landscape.md)) and a pointer in section 2. Rule: link to existing sites instead of rebuilding NGO financial profiles, conflict research, grievance filing and CSR compliance software. | Ganesh: avoid adding features that already exist. Research found no site that checks NGO promise vs spend vs ground reality, so that stays ours. |
 | 2026-11-10 | Added section 2 "Plan to achieve the vision" (base list, NGO claim, unlisted NGOs, promotion) with a checked data-channel table. Moved "Where we are" to section 3 and renumbered. Added a third stream, principle 8, decisions D5, D6, D13. Decisions renamed D1 to D13 so section moves do not break references. | Ganesh asked for a plan to reach the vision: collect company CSR and NGO data from public channels, let NGOs claim and manage records, list missing NGOs, then promote. |
 | 2026-11-10 | Added NGO transparency pillar (vision, principle 7, Track B, decisions and risks). | Ganesh: donors cannot tell if NGO money reaches its purpose; compare spend, promise and reality, verifiable by individuals. |
 | 2026-11-10 | First version. Merged the PRD vision with the 2026-11-05 ForThePeople direction into four phases. | Team needed one place that says where RSWF goes and how it gets there. |
