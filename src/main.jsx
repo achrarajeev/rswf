@@ -21,6 +21,7 @@ import Me from './pages/Me'
 import About from './pages/About'
 import Rti from './pages/Rti'
 import Register from './pages/Register'
+import IssueNew from './pages/IssueNew'
 import Login from './pages/Login'
 import Institute from './pages/Institute'
 
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')).render(
         <Route index element={<Home />} />
         <Route path="hub" element={<Hub />} />
         <Route path="issues" element={<Issues />} />
+        <Route path="issues/new" element={<IssueNew />} />
         <Route path="issues/:id" element={<IssueDetail />} />
         <Route path="issues/:id/join" element={<Join />} />
         <Route path="research" element={<Research />} />

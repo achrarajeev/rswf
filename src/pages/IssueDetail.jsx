@@ -43,11 +43,11 @@ export default function IssueDetail() {
           <motion.div key={tab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }}>
             {tab === 'Overview' && <>
               <p className="head" style={{ fontSize: 28, lineHeight: 1.3, marginBottom: 12, letterSpacing: '-.01em', fontWeight: 400 }}>{i.blurb}</p>
-              <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginBottom: 32 }}>{i.company} · {i.state} · {i.mw} · illustrative sample until reviewed</p>
-              <div className="cmp">
+              <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginBottom: 32 }}>{i.company} · {i.state} · {i.mw} · {i.submitted ? 'submitted by a user, reviewed' : 'illustrative sample until reviewed'}</p>
+              {!i.submitted && <div className="cmp">
                 <div><div className="mono" style={{ opacity: .7 }}>Government says</div><div className="head" style={{ fontSize: 64, margin: '14px 0 6px', lineHeight: 1 }}>38 ha</div><p style={{ opacity: .75 }}>of degraded forest is affected.</p><div style={{ marginTop: 16 }}><Source>Parivesh PP-2041</Source> <Trust t="Unverified" /></div></div>
                 <div><div className="mono" style={{ opacity: .7 }}>Independent evidence</div><div className="head" style={{ fontSize: 64, margin: '14px 0 6px', lineHeight: 1, color: 'var(--g1)' }}>{i.hectares} ha</div><p style={{ opacity: .75 }}>including 6 perennial streams, per forest survey.</p><div style={{ marginTop: 16 }}><Source>RTI reply, 12 Aug 2026</Source> <Trust t="High" /></div></div>
-              </div>
+              </div>}
             </>}
             {tab === 'Solution' && <Solution issue={i} me={me} />}
             {tab === 'Legal' && (lg ? <div className="card"><Scale size={20} /><p style={{ margin: '12px 0' }}>{lg.text}</p><Source>{lg.src}</Source><p style={{ marginTop: 16, color: 'var(--sig)' }}>{lg.gap}</p></div> : <Missing what="Legal record" />)}

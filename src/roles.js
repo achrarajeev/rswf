@@ -5,6 +5,7 @@ export const staffRoles = ['Reviewer', 'Moderator', 'Admin']
 const grants = {
   'contribute': ['User', 'Institute'],          // join issues, pick up tasks, submit evidence
   'evidence.review': ['Reviewer', 'Admin'],
+  'issue.review': ['Reviewer', 'Admin'],
   'institute.review': ['Reviewer', 'Admin'],
   'credential.review': ['Reviewer', 'Admin'],
   'forum.moderate': ['Moderator', 'Admin'],

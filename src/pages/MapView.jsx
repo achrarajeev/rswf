@@ -25,7 +25,7 @@ function cluster(list) {
 
 export default function MapView() {
   const [layer, setLayer] = useState('All'); const [year, setYear] = useState(2026); const [selKey, setSelKey] = useState(null); const [fmode, setFmode] = useState('change')
-  const shown = issues.filter(i => (layer === 'All' || i.eco === layer) && i.since <= year)
+  const shown = issues.filter(i => i.lon != null && (layer === 'All' || i.eco === layer) && i.since <= year)
   const clusters = useMemo(() => cluster(shown), [layer, year])
   const sel = clusters.find(c => c.items.map(i => i.id).join() === selKey) || clusters[0]
   const key = c => c.items.map(i => i.id).join()
