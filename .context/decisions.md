@@ -58,3 +58,10 @@ Format: `## [YYYY-MM-DD] ADR-00N — Title`
 - **Decision:** `src/roles.js` maps action → roles; Reviewer, Moderator, Admin are separate, invite-only staff; Lawyer/Local researcher are reviewer-verified badges on a User, not account types.
 - **Why:** The same table becomes server-side authorisation later; badges avoid a role per profession.
 - **Consequences:** UI checks only hide buttons; backend must enforce; ADR-003's reviewer approval now covers credentials too.
+
+## [2026-11-02] ADR-005 — dev as integration branch
+- **Context:** Several people (product, tech, institute view) merge PRs straight into `main`, so `main` can change under open work.
+- **Options:** everyone merges to `main`; `dev` integration branch then `main`; long-lived feature branches.
+- **Decision:** Feature branch → PR into `dev` → PR from `dev` into `main`. `main` and `dev` were made identical on 2026-11-02 (fast-forward, no force).
+- **Why:** `main` stays a reviewed, releasable state; conflicts surface in `dev` first.
+- **Consequences:** Branch from `dev`. After each `dev`→`main` merge, check `dev` still contains `main` (merge commits can make `main` ahead). Branch protection on `main` must be set in GitHub settings.

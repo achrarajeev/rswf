@@ -6,7 +6,8 @@ import { PageHead } from '../components/ui'
 import CaseCard from '../components/CaseCard'
 
 const uniq = k => [...new Set(issues.map(i => i[k]))].sort()
-const groups = [
+// Built on each render: reviewers can list new issues while the app is open.
+const makeGroups = () => [
   ['State', 'state', uniq('state')],
   ['Ecosystem', 'eco', ['Forest', 'Rivers', 'Lakes', 'Wildlife']],
   ['Company', 'company', uniq('company')],
@@ -17,7 +18,7 @@ const rank = { High: 0, Medium: 1, Unverified: 2 }
 const sorts = { name: ['Name, A to Z', (a, b) => a.name.localeCompare(b.name)], area: ['Largest area first', (a, b) => b.hectares - a.hectares], trust: ['Highest trust first', (a, b) => rank[a.trust] - rank[b.trust]], help: ['Most help needed', (a, b) => b.help.length - a.help.length] }
 
 export default function Issues() {
-  const [params, setParams] = useSearchParams()
+  const [params, setParams] = useSearchParams(); const groups = makeGroups()
   const q = params.get('q') || ''
   const [f, setF] = useState({ state: [], eco: [], company: [], status: [], help: [] })
   const [sort, setSort] = useState('name'); const [open, setOpen] = useState(false)
@@ -55,6 +56,7 @@ export default function Issues() {
             <span className="mono" style={{ color: 'var(--mute)' }}>{list.length} of {issues.length} cases</span>
             {q && <button className="qchip" onClick={() => setParams({})}><Search size={12} /> {q} <X size={13} /></button>}
             <label className="sortsel"><ArrowDownUp size={15} /><select value={sort} onChange={e => setSort(e.target.value)} aria-label="Sort cases">{Object.entries(sorts).map(([k, [l]]) => <option key={k} value={k}>{l}</option>)}</select></label>
+            <Link to="/issues/new" className="btn primary">Submit an issue</Link>
             <Link to="/map" className="btn ghost"><Map size={14} /> Map view</Link>
           </div>
           {list.length ? <div className="grid g2 iss-grid">{list.map((i, k) => <CaseCard key={i.id} i={i} k={k} />)}</div>

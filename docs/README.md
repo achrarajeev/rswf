@@ -8,6 +8,11 @@ Index
 
 5. [Google Doc snapshot](google-doc-snapshot.md): copy of the living doc (vision, team roles, pending list), imported 2026-10-31
 6. [API notes](api.md): backend endpoints derived from the `TODO` comments in `src/*Store.js` (to write)
+7. [ForThePeople.in reference analysis](reference/forthepeople-analysis.md): vision, what to copy from the reference site and how, next changes to our code; survey notes in [reference/forthepeople/](reference/forthepeople/)
+
+8. [Vision and plan](vision-and-plan.md): the vision, where we are, four phases with exit checks, decisions needed, risks, change log
+9. [Value and messaging](value-and-messaging.md): value by audience, feature status, message bank and content ideas for promotion
+10. [Landscape](reference/landscape.md): existing sites that overlap or can feed RSWF, with a build, link or skip verdict for each
 
 Conventions: one topic per file; architectural decisions go in `../.context/decisions.md`; designs and screenshots in `docs/assets/`.
 

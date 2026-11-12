@@ -40,6 +40,13 @@ docs/             PRD, user flow, pending features (start at docs/README.md)
 .context/         project knowledge for AI-assisted work: state, decisions, lessons
 ```
 
+## Branching
+
+1. Branch from `dev` (`feature/...`, `docs/...`, `fix/...`).
+2. Open a PR into `dev`. Everyone merges here first.
+3. When `dev` is ready, open a PR from `dev` into `main`.
+4. Never push or merge feature branches straight into `main`.
+
 ## Documentation
 
 See [docs/README.md](docs/README.md). The PRD is [docs/PRD.md](docs/PRD.md).

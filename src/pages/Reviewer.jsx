@@ -5,6 +5,7 @@ import { Check, MessageSquarePlus, X, Building2 } from 'lucide-react'
 import { issues, institutions, credentials, people } from '../data'
 import { can } from '../roles'
 import { useSubmissions, evidenceStore } from '../evidenceStore'
+import { useIssueSubmissions, issueStore } from '../issueStore'
 import { useAuth, auth, issuesFor } from '../authStore'
 import { PageHead, Trust } from '../components/ui'
 
@@ -46,7 +47,7 @@ function InstituteQueue() {
 }
 
 export default function Reviewer() {
-  const { me } = useAuth(); const [params] = useSearchParams(); const [tab, setTab] = useState(['Evidence', 'Institutes', 'Verification'].includes(params.get('tab')) ? params.get('tab') : 'Evidence')
+  const { me } = useAuth(); const [params] = useSearchParams(); const [tab, setTab] = useState(['Evidence', 'Issues', 'Institutes', 'Verification'].includes(params.get('tab')) ? params.get('tab') : 'Evidence')
   if (!can(me, 'evidence.review')) return (
     <>
       <PageHead eyebrow="Check" title="Reviewer dashboard" sub="For reviewers who verify evidence and institutes." />
@@ -58,6 +59,40 @@ export default function Reviewer() {
     </>
   )
   return <ReviewerHome tab={tab} setTab={setTab} />
+}
+
+// New issues submitted by users. The reviewer checks the evidence, sets a trust level, then lists, asks for more, or rejects.
+function IssueQueue() {
+  const all = useIssueSubmissions(); const { me } = useAuth()
+  const q = all.filter(x => x.review === 'Pending review')
+  const [sel, setSel] = useState(0); const [trust, setTrust] = useState('Medium'); const [note, setNote] = useState('')
+  const c = q[Math.min(sel, q.length - 1)]
+  const act = d => { issueStore.review(c.id, d, note, trust, me.name); setSel(0); setNote('') }
+  return (
+    <div className="wrap side" style={{ margin: '24px auto 60px' }}>
+      <div className="grid" style={{ gap: 10 }}>{q.map(x => (
+        <button key={x.id} onClick={() => setSel(q.indexOf(x))} className="card hover" style={{ textAlign: 'left', borderColor: c?.id === x.id ? 'var(--g1)' : undefined }}>
+          <div>{x.name}</div><div style={{ fontSize: 12, color: 'var(--mute)', marginTop: 4 }}>{x.eco} · {x.state} · by {x.byName} · {x.date}</div></button>))}
+        {!q.length && <div className="card">No issues waiting. Nice work.</div>}</div>
+      {c && <aside className="card" style={{ alignSelf: 'start' }}>
+        <b>{c.name}</b>
+        <div className="mono" style={{ color: 'var(--mute)', margin: '6px 0 10px' }}>{c.eco} · {c.state} · {c.status}<br />Submitted by {c.byName} · {c.date}</div>
+        <p style={{ marginBottom: 10 }}>{c.blurb}</p>
+        <dl style={{ display: 'grid', gap: 6, fontSize: 14, margin: '10px 0 14px' }}>
+          {c.company && <div><dt className="mono" style={{ color: 'var(--mute)' }}>Company or authority</dt><dd>{c.company}</dd></div>}
+          {c.legalText && <div><dt className="mono" style={{ color: 'var(--mute)' }}>Legal details</dt><dd>{c.legalText}</dd></div>}
+          {c.solutionText && <div><dt className="mono" style={{ color: 'var(--mute)' }}>Proposed solution</dt><dd>{c.solutionText}</dd></div>}
+          <div><dt className="mono" style={{ color: 'var(--mute)' }}>Evidence ({c.evidence.type})</dt><dd>{c.evidence.title}<br /><span className="mono" style={{ color: 'var(--mute)', textTransform: 'none' }}>{c.evidence.link || c.evidence.fileName}</span><br />{c.evidence.note}</dd></div>
+        </dl>
+        <b>Trust level if listed</b>
+        <div className="row" style={{ margin: '10px 0 12px' }}>{['High', 'Medium', 'Unverified'].map(t => <button key={t} onClick={() => setTrust(t)} style={{ opacity: trust === t ? 1 : .45, outline: trust === t ? '2px solid var(--g1)' : 0, borderRadius: 99 }}><Trust t={t} /></button>)}</div>
+        <label className="field"><span>Note (required)</span><textarea rows="3" value={note} onChange={e => setNote(e.target.value)} /></label>
+        <div className="grid" style={{ gap: 8 }}>
+          <button disabled={!note.trim()} className="btn primary" onClick={() => act('Listed')}><Check size={15} />Approve and list</button>
+          <button disabled={!note.trim()} className="btn ghost" onClick={() => act('More info needed')}><MessageSquarePlus size={15} />Request more information</button>
+          <button disabled={!note.trim()} className="btn warn" onClick={() => act('Rejected')}><X size={15} />Reject</button></div></aside>}
+    </div>
+  )
 }
 
 function EvidenceQueue() {
@@ -126,12 +161,12 @@ function CredentialQueue() {
 }
 
 function ReviewerHome({ tab, setTab }) {
-  const pendingEv = useSubmissions().filter(x => x.status === 'Pending review').length
+  const pendingEv = useSubmissions().filter(x => x.status === 'Pending review').length, pendingIs = useIssueSubmissions().filter(x => x.review === 'Pending review').length
   return (
     <>
-      <PageHead eyebrow="Check" title="Reviewer dashboard" sub={tab === 'Evidence' ? `${pendingEv} submissions waiting.` : tab === 'Institutes' ? 'Institute registrations waiting for a check.' : 'Credential claims waiting for a check.'} />
-      <div className="wrap" style={{ marginTop: 24 }}><div className="filters">{['Evidence', 'Institutes', 'Verification'].map(t => <button key={t} className={`fbtn ${tab === t ? 'on' : ''}`} onClick={() => setTab(t)}>{t}</button>)}</div></div>
-      {tab === 'Institutes' ? <InstituteQueue /> : tab === 'Verification' ? <CredentialQueue /> : <EvidenceQueue />}
+      <PageHead eyebrow="Check" title="Reviewer dashboard" sub={tab === 'Evidence' ? `${pendingEv} submissions waiting.` : tab === 'Issues' ? `${pendingIs} new issues waiting.` : tab === 'Institutes' ? 'Institute registrations waiting for a check.' : 'Credential claims waiting for a check.'} />
+      <div className="wrap" style={{ marginTop: 24 }}><div className="filters">{['Evidence', 'Issues', 'Institutes', 'Verification'].map(t => <button key={t} className={`fbtn ${tab === t ? 'on' : ''}`} onClick={() => setTab(t)}>{t}</button>)}</div></div>
+      {tab === 'Issues' ? <IssueQueue /> : tab === 'Institutes' ? <InstituteQueue /> : tab === 'Verification' ? <CredentialQueue /> : <EvidenceQueue />}
     </>
   )
 }
