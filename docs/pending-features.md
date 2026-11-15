@@ -12,7 +12,6 @@ Row numbers stay fixed so issues and chats can refer to them.
 | 9 | Royalty-free images | Replace copied images; needs writers and image creators | [deferred] |
 | 10 | User flow document | See [user-flow.md](user-flow.md) | [agreed] |
 | 11 | Institution registration form | Form for an institute to register and upload a proof document (for example a registration certificate). Today the register page asks only name, type, registration number and website, and a reviewer checks the number. A reviewer verifies the document before the institute shows as verified. Exact fields to be agreed. Decided in the meeting of 1 Nov 2026 | [proposed] |
-| 12 | Issue submission form | Form listing the details an issue needs to qualify, for example title, location, category, description, and whether a solution exists. The issue tabs show the information from this form. Evidence is mandatory; other fields are optional. Exact fields to be agreed. Decided in the meeting of 1 Nov 2026 | [proposed] |
 
 ## Implemented
 
@@ -23,3 +22,4 @@ Row numbers stay fixed so issues and chats can refer to them.
 | 3 | Registration and login | User and institute accounts, with register and login pages | [done] |
 | 4 | Volunteer form | After logging in, a user or institute opens the Join form on an issue; they then appear under People | [done] |
 | 5 | Issue tasks | The Solution tab shows the problem, steps and tasks (open, taken up, done); institutes on the issue maintain tasks, volunteers pick them up | [done] |
+| 12 | Issue submission form | Logged-in users submit an issue at /issues/new with title, state, category, description and mandatory evidence; a reviewer decides whether it is listed, and the form fills the issue tabs. Files: src/pages/IssueNew.jsx, src/issueStore.js, src/pages/Reviewer.jsx. Decided in the meeting of 1 Nov 2026 | [done] |
