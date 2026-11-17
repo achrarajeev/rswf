@@ -65,3 +65,10 @@ Format: `## [YYYY-MM-DD] ADR-00N — Title`
 - **Decision:** Feature branch → PR into `dev` → PR from `dev` into `main`. `main` and `dev` were made identical on 2026-11-02 (fast-forward, no force).
 - **Why:** `main` stays a reviewed, releasable state; conflicts surface in `dev` first.
 - **Consequences:** Branch from `dev`. After each `dev`→`main` merge, check `dev` still contains `main` (merge commits can make `main` ahead). Branch protection on `main` must be set in GitHub settings.
+
+## [2026-11-17] ADR-006 — Prototype only what it can show honestly
+- **Context:** Rows 6-9 of pending-features were all "deferred"; owner asked to complete what a prototype can cover.
+- **Options:** build all four with fakes; build only what works in memory; wait for the backend.
+- **Decision:** Build row 7 (in-memory topics and tags), audit row 9 (images already credited), re-scope row 6 (mostly done), leave row 8 (needs a server).
+- **Why:** A fake scheduled pull would show a "last pulled" time that is not true.
+- **Consequences:** Row 8 and real notifications wait for the backend; row 6 needs a product decision before more code.

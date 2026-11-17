@@ -67,3 +67,8 @@
 ## [2026-11-17] session | Rows 7, 6, 9
 - Row 7: `forum.official` permission, `forum.official()` and `forum.tag()` in forumStore (audited), TagPicker, "Admins tagged you" card on Me. Browser-tested: only admins see the toggle; moderator and user are refused at the store.
 - Row 9: audited all 14 images, each has artist, licence and page in credits.json. Row 6 re-scoped in docs. Row 8 left deferred.
+
+## [2026-11-17] session | Prototype rows done, PR pending
+- Built #7 (institute proof document) and row 7 (admin official topics and tagging); audited images for row 9; re-scoped row 6; filled CLAUDE.md, overview, constraints; cross-checked indicators against PIB.
+- Decided: build only what a prototype can show honestly; row 8 stays deferred (see ADR-006).
+- Open: PR into `dev` not created (token/browser sign-in), #6/#7 comments and closing, rejected-institute join gap, 360px check of new forum screens.
