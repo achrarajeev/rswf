@@ -14,6 +14,7 @@ const roles = {
   Researcher: { bg: '#FFF1CC', fg: '#8a6200', Icon: FlaskConical },
   Local: { bg: '#E3EFE7', fg: '#1F4D3A', Icon: MapPin },
   Moderator: { bg: '#FBE9DD', fg: '#C8561B', Icon: ShieldCheck },
+  Admin: { bg: '#E4ECFB', fg: '#2b4f9e', Icon: ShieldCheck },
 }
 const sorts = [['top', 'Top'], ['talk', 'Most discussed']]
 
@@ -28,7 +29,7 @@ export default function Forum() {
 
   const list = useMemo(() => [...threads]
     .filter(t => (cs === 'All' || t.case === cs) && (role === 'All' || t.role === role) && t.title.toLowerCase().includes(q.toLowerCase()))
-    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (sort === 'top' ? b.votes - a.votes : replyCount(b) - replyCount(a))),
+    .sort((a, b) => (b.official ? 1 : 0) - (a.official ? 1 : 0) || (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (sort === 'top' ? b.votes - a.votes : replyCount(b) - replyCount(a))),
   [threads, sort, role, q, cs])
 
   const totalReplies = threads.reduce((n, t) => n + replyCount(t), 0)
@@ -59,7 +60,7 @@ export default function Forum() {
                     <button className={my === -1 ? 'down' : ''} onClick={() => forum.vote(t.id, -1)} aria-label="Downvote"><ArrowBigDown size={22} /></button>
                   </div>
                   <div className="t-body">
-                    {t.pinned && <span className="t-pin"><Pin size={13} /> Pinned by moderators</span>}
+                    {t.pinned && <span className="t-pin"><Pin size={13} /> {t.official ? 'Official topic' : 'Pinned by moderators'}</span>}
                     <h3><Link to={`/forum/${t.id}`}>{t.title}</Link></h3>
                     <div className="t-meta">
                       <span className="avatar" style={{ background: R.bg, color: R.fg }}>{t.author[0].toUpperCase()}</span>

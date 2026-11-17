@@ -9,6 +9,7 @@ const grants = {
   'institute.review': ['Reviewer', 'Admin'],
   'credential.review': ['Reviewer', 'Admin'],
   'forum.moderate': ['Moderator', 'Admin'],
+  'forum.official': ['Admin'],                   // create official topics and tag users (row 7)
   'admin.panel': ['Moderator', 'Admin'],         // tabs inside are filtered again by the actions below
   'users.manage': ['Admin'],
   'audit.view': ['Admin'],

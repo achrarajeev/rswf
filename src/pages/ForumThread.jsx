@@ -4,6 +4,7 @@ import { ArrowBigUp, ArrowBigDown, Flag, Pin, Check } from 'lucide-react'
 import { issues } from '../data'
 import { useThreads, forum } from '../forumStore'
 import { PageHead } from '../components/ui'
+import TagPicker from '../components/TagPicker'
 import { useAuth } from '../authStore'
 import { can } from '../roles'
 import { verifiedByName } from '../data'
@@ -13,6 +14,7 @@ const roleList = ['Lawyer', 'Researcher', 'Local']
 export default function ForumThread() {
   const { id } = useParams(); const { me } = useAuth(); const t = useThreads().find(x => x.id === id)
   const [f, setF] = useState({ author: me?.name || '', role: 'Local', text: '' }); const [tried, setTried] = useState(false)
+  const [pick, setPick] = useState([]); const [tagErr, setTagErr] = useState('')
   if (t?.hidden && !can(me, 'forum.moderate')) return <PageHead eyebrow="Discuss" title="This thread was removed" sub="A moderator removed it for breaking the forum rules." />
   if (!t) return <PageHead eyebrow="Discuss" title="Thread not found" sub="It may have been removed, or the prototype reset." />
   const issue = issues.find(i => i.id === t.case)
@@ -29,10 +31,11 @@ export default function ForumThread() {
         <div>
           <Link to={`/forum?case=${t.case}`} className="mono" style={{ color: 'var(--mute)' }}>← All threads for this case</Link>
           <article className={`card ${t.pinned ? 'thread pin' : ''}`} style={{ margin: '16px 0' }}>
-            {t.pinned && <span className="t-pin"><Pin size={13} /> Pinned by moderators</span>}
+            {t.pinned && <span className="t-pin"><Pin size={13} /> {t.official ? 'Official topic' : 'Pinned by moderators'}</span>}
             {t.hidden && <p className="mono" style={{ color: 'var(--sig)', textTransform: 'none', marginBottom: 8 }}>Hidden from the public by a moderator{t.modNote ? `: ${t.modNote}` : ''}</p>}
             <div className="mono" style={{ color: 'var(--mute)' }}>{t.author} · {t.role}{verifiedByName(t.author).length > 0 && ` · Verified ${verifiedByName(t.author)[0].toLowerCase()}`}</div>
             <p style={{ margin: '12px 0 16px', lineHeight: 1.6 }}>{t.body}</p>
+            {t.tags?.length > 0 && <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginBottom: 12 }}>Tagged: {t.tags.map(g => g.name).join(', ')}</p>}
             <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
               <div className="row" style={{ gap: 4 }}>
                 <button className={`btn ghost ${t.myVote === 1 ? 'on' : ''}`} onClick={() => forum.vote(t.id, 1)} aria-label="Upvote"><ArrowBigUp size={18} /></button>
@@ -42,6 +45,13 @@ export default function ForumThread() {
               <button className="btn ghost" disabled={t.reported} onClick={() => forum.report(t.id)}>{t.reported ? <><Check size={15} /> Reported to moderators</> : <><Flag size={15} /> Report</>}</button>
             </div>
           </article>
+          {can(me, 'forum.official') && <div className="card" style={{ marginBottom: 16 }}>
+            <b>Tag users</b>
+            <p style={{ color: 'var(--mute)', fontSize: 14, margin: '6px 0 10px' }}>Tagged users see this thread on their Me page.</p>
+            <TagPicker value={pick} onChange={v => { setPick(v); setTagErr('') }} />
+            {tagErr && <p role="alert" style={{ color: 'var(--sig)', marginTop: 8 }}>{tagErr}</p>}
+            <button className="btn primary" style={{ marginTop: 12 }} onClick={() => { const m = forum.tag(me, t.id, pick); m ? setTagErr(m) : setPick([]) }}>Tag selected users</button>
+          </div>}
           <h3 style={{ fontSize: 20, margin: '24px 0 12px' }}>{t.posts.length} {t.posts.length === 1 ? 'reply' : 'replies'}</h3>
           {t.posts.length === 0 && <div className="f-empty">No replies yet. Be the first to answer.</div>}
           <div className="grid" style={{ gap: 12 }}>{t.posts.map((p, k) => <div key={k} className="card"><div className="mono" style={{ color: 'var(--mute)' }}>{p.author} · {p.role} · {p.when}</div><p style={{ marginTop: 8, lineHeight: 1.6 }}>{p.text}</p></div>)}</div>
