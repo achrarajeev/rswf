@@ -44,14 +44,15 @@ export const auth = {
     save(a.email); set({ email: a.email }); return null
   },
   logout() { save(null); set({ email: null }) },
-  // f: { type, email, password, name, place, role, org, orgType, reg, web }. Returns an error string, or null on success.
+  // f: { type, email, password, name, place, role, org, orgType, reg, web, doc }. An institute must send doc (see proofDoc.js). Returns an error string, or null on success.
   register(f) {
     const email = norm(f.email)
     if (accounts.some(a => a.email === email)) return 'An account with this email already exists'
+    if (f.type === 'Institute' && !f.doc) return 'Attach a proof document'
     let ref
     if (f.type === 'Institute') {
       ref = `i-${slug(f.org)}-${institutions.length + 1}`
-      institutions.push({ id: ref, name: f.org.trim(), type: f.orgType, place: f.place.trim(), reg: f.reg.trim(), contact: f.name.trim(), web: f.web.trim(), status: 'Pending review' })
+      institutions.push({ id: ref, name: f.org.trim(), type: f.orgType, place: f.place.trim(), reg: f.reg.trim(), contact: f.name.trim(), web: f.web.trim(), doc: f.doc || null, status: 'Pending review' })
     } else {
       ref = `p-${slug(f.name)}-${people.length + 1}`
       people.push({ id: ref, name: f.name.trim(), role: f.role, place: f.place.trim() })
@@ -68,6 +69,15 @@ export const auth = {
     inst.status = decision; inst.reviewNote = note.trim(); inst.reviewedBy = lookup(a).name
     audit.log(inst.reviewedBy, `${decision === 'Verified' ? 'Verified' : decision} institute`, inst.name)
     set({}); return null
+  },
+  // The institute sends a new document after a reviewer asked for more information or rejected it. Goes back to the queue.
+  // TODO: with a backend this is POST /institutions/:id/document, allowed for that institute only.
+  resubmitInstituteDoc(doc) {
+    const a = accounts.find(x => x.email === state.email); if (a?.type !== 'Institute') return 'Only an institute can do this'
+    const inst = institutions.find(x => x.id === a.ref); if (!inst) return 'Institute not found'
+    if (inst.status !== 'More info needed' && inst.status !== 'Rejected') return 'Nothing to resubmit right now'
+    inst.doc = doc; inst.status = 'Pending review'; inst.reviewNote = undefined; inst.reviewedBy = undefined
+    audit.log(inst.name, 'Resubmitted institute document', inst.name); set({}); return null
   },
   // ---- Admin. TODO: PATCH /users/:id (suspend, role), POST /staff/invitations. Checked server-side later. ----
   users() {
