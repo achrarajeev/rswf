@@ -8,6 +8,7 @@ import { useSubmissions, evidenceStore } from '../evidenceStore'
 import { useIssueSubmissions, issueStore } from '../issueStore'
 import { useAuth, auth, issuesFor } from '../authStore'
 import { PageHead, Trust } from '../components/ui'
+import { sizeLabel } from '../proofDoc'
 
 // Pending institute registrations. A reviewer checks the registration number, then approves, asks for more, or rejects.
 function InstituteQueue() {
@@ -31,9 +32,10 @@ function InstituteQueue() {
           <div><dt className="mono" style={{ color: 'var(--mute)' }}>Registration number</dt><dd>{c.reg || 'Not given'}</dd></div>
           {c.contact && <div><dt className="mono" style={{ color: 'var(--mute)' }}>Contact person</dt><dd>{c.contact}</dd></div>}
           {c.web && <div><dt className="mono" style={{ color: 'var(--mute)' }}>Website</dt><dd>{c.web}</dd></div>}
+          <div><dt className="mono" style={{ color: 'var(--mute)' }}>Proof document</dt><dd>{c.doc ? <>{c.doc.type}<br /><a href={c.doc.url} target="_blank" rel="noreferrer noopener" style={{ textDecoration: 'underline' }}>Open {c.doc.name}</a> <span className="mono" style={{ color: 'var(--mute)', textTransform: 'none' }}>({sizeLabel(c.doc.size)})</span></> : 'No document (sample data)'}</dd></div>
           <div><dt className="mono" style={{ color: 'var(--mute)' }}>Issues joined</dt><dd>{issuesFor('Institute', c.id).length}</dd></div>
         </dl>
-        <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginBottom: 10 }}>Check the number against the issuing registry before approving. Sample data here: no real check is made.</p>
+        <p className="mono" style={{ color: 'var(--mute)', textTransform: 'none', marginBottom: 10 }}>Check the number and the document against the issuing registry before approving. Sample data here: no real check is made.</p>
         <label className="field"><span>Note (required)</span><textarea rows="3" value={note} onChange={e => setNote(e.target.value)} /></label>
         {err && <p style={{ color: 'var(--sig)', marginBottom: 8 }}>{err}</p>}
         <div className="grid" style={{ gap: 8 }}>
