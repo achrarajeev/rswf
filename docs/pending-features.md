@@ -11,7 +11,6 @@ Row numbers stay fixed so issues and chats can refer to them.
 | 8 | Scheduled data pull | Cron into backend tables with last-pulled time; start with current projects | [deferred] |
 | 9 | Royalty-free images | Replace copied images; needs writers and image creators | [deferred] |
 | 10 | User flow document | See [user-flow.md](user-flow.md) | [agreed] |
-| 11 | Institution registration form | Form for an institute to register and upload a proof document (for example a registration certificate). Today the register page asks only name, type, registration number and website, and a reviewer checks the number. A reviewer verifies the document before the institute shows as verified. Exact fields to be agreed. Decided in the meeting of 1 Nov 2026 | [proposed] |
 
 ## Implemented
 
@@ -23,3 +22,4 @@ Row numbers stay fixed so issues and chats can refer to them.
 | 4 | Volunteer form | After logging in, a user or institute opens the Join form on an issue; they then appear under People | [done] |
 | 5 | Issue tasks | The Solution tab shows the problem, steps and tasks (open, taken up, done); institutes on the issue maintain tasks, volunteers pick them up | [done] |
 | 12 | Issue submission form | Logged-in users submit an issue at /issues/new with title, state, category, description and mandatory evidence; a reviewer decides whether it is listed, and the form fills the issue tabs. Files: src/pages/IssueNew.jsx, src/issueStore.js, src/pages/Reviewer.jsx. Decided in the meeting of 1 Nov 2026 | [done] |
+| 11 | Institution registration form | Institute registers with a proof document (PDF, JPG or PNG, up to 5 MB; type chosen from a list). Page shows Pending review until a reviewer opens the document and verifies, asks for more information, or rejects; the institute can send a new document after either. Files: src/pages/Register.jsx, src/proofDoc.js, src/pages/Reviewer.jsx, src/pages/Institute.jsx. Prototype keeps the file in the browser tab only; real storage needs the backend. Decided in the meeting of 1 Nov 2026 | [done] |

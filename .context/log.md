@@ -48,3 +48,13 @@
 - Added `roles.js` permission table, `/admin` (overview, users, moderation, audit log), staff invite, suspension, and verified Lawyer/Local researcher badges.
 - Decided: staff roles are invite-only; Reviewer, Moderator and Admin stay separate (ADR-004). Backend deferred until flows are final.
 - Open: nothing committed yet, 360px check of new pages, reject-path tests, unfilled CLAUDE.md placeholders.
+
+## [2026-11-12] session | dev
+
+  - `cba7612` Merge pull request #12 from achrarajeev/feat/issue-submission-form
+  - `ae70cab` feat: issue submission form with mandatory evidence and reviewer queue (#6)
+
+## [2026-11-17] session | Institution registration with proof document (#7)
+- Institute register form now requires a proof document (type, PDF/JPG/PNG, <=5 MB) via `src/proofDoc.js`; reviewer Institutes tab shows and opens it; institute page lets the owner resubmit after "More info needed" or "Rejected".
+- Browser-tested the full loop. Limits assumed (not yet agreed on the issue): file types, size, one document. File is held in memory only (blob URL), lost on refresh.
+- Issue #6 shipped in PR #12 but was left open on GitHub.
