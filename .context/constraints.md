@@ -15,24 +15,26 @@
 
 | # | Constraint | Rationale | Checkable |
 |---|---|---|---|
-| C1 | Controllers never call the DB directly — always through the service layer | testability, transaction boundaries | `grep -rn 'db\.' controllers/` should be empty |
-| | | | |
+| C1 | Pages never mutate the seed arrays from `data.js`; they call a store function | one place to log, validate and later swap for an API | `grep -rn '\.push(' src/pages` may show only local arrays, never `issues`, `people`, `institutions`, `evidence` |
+| C2 | Permission checks go through `can()` / `isStaff()` in `roles.js`, never `me.type === ...` in a page | one table to replace with server-side checks | `grep -rn "type === '" src/pages` should only show display logic |
+| C3 | Every reviewer or admin decision calls `audit.log` | audit tab must be complete | `grep -n "audit.log" src/*Store.js` |
 
 ## Module ownership
 
-Who is allowed to write what. Violations create the coupling that kills projects.
-
 | Module | Owns (may write) | May read | Must never touch |
 |---|---|---|---|
-| | | | |
+| authStore | accounts, people, institutions, assignments, credentials, staff | data | issues, evidence |
+| issueStore | issues, legal, solutionSteps, evidence seed (on listing) | data | accounts |
+| evidenceStore, tasksStore, forumStore | their own arrays | data | accounts |
 
 ## Directional rules
 
-- (e.g. Payment never updates Orders — it emits an event, Orders reacts)
-- (e.g. Reports are read-only; no report path may write to any table)
+- UI checks only hide buttons; a backend must enforce every `can()` rule.
+- Staff accounts (Reviewer, Moderator, Admin) are invite-only; no path turns a User or Institute into staff (ADR-004).
 
 ## Forbidden patterns
 
-Things that have caused real problems here. Be specific.
-
-- 
+- Renaming `issue.help` values (Money, People, Legal): breaks the Issues filter and Home icons. Map via `needToKinds`.
+- Shipping third-party figures without an Unverified flag and a cross-check.
+- Real passwords or personal data in the prototype: passwords are plain text.
+- Resizing the window to test mobile: use 360px iframes. Append new mobile CSS at the end of `src/styles.css` (it relies on `!important`; later rules win).

@@ -12,7 +12,7 @@ export const issues = [
 export const indicators = [
   { value: 21.76, dec: 2, suffix: '%', label: 'of India’s land is forest cover', note: '715,343 km². FSI counts any land above 1 ha with >10% canopy, plantations included.', src: 'FSI, ISFR 2023', url: 'https://fsi.nic.in', trust: 'Medium' },
   { value: 25.17, dec: 2, suffix: '%', label: 'forest and tree cover combined', note: 'The National Forest Policy 1988 target is 33%.', src: 'FSI, ISFR 2023', url: 'https://fsi.nic.in', trust: 'Medium' },
-  { value: 3682, dec: 0, suffix: '', label: 'tigers, average estimate', note: 'Range 3,167 to 3,925 in the 2022 All India Tiger Estimation.', src: 'NTCA, AITE 2022', url: 'https://ntca.gov.in', trust: 'Medium' },
+  { value: 3682, dec: 0, suffix: '', label: 'tigers, average estimate', note: 'Range 3,167 to 3,925 in the 2022 All India Tiger Estimation. Average and upper limit match the PIB release of 29 Jul 2023; the 3,167 lower bound is from secondary reporting only.', src: 'NTCA, AITE 2022', url: 'https://ntca.gov.in', trust: 'Medium' },
   { value: 7.83, dec: 2, suffix: ' pts', label: 'gap to the 33% target', note: 'Derived: 33 minus 25.17. Reviewer to confirm method.', src: 'Derived from ISFR 2023', url: 'https://fsi.nic.in', trust: 'Unverified' },
 ]
 export const forestSeries = { title: 'Forest cover, % of area', src: 'FSI, ISFR 2015 to 2023', pts: [[2015, 21.34], [2017, 21.54], [2019, 21.67], [2021, 21.71], [2023, 21.76]] }

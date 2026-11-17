@@ -13,12 +13,12 @@
 
 ## This project
 
-{{ONE_LINE_DESCRIPTION}}
+Earth Ledger: an open, source-linked database of India's active environmental issues. Clickable prototype with in-memory data and no backend yet.
 
-- **Stack:** {{STACK}}
-- **Run:** `{{RUN_CMD}}`
-- **Test:** `{{TEST_CMD}}`
-- **Entry point:** {{ENTRY_POINT}}
+- **Stack:** React 19, Vite, react-router (HashRouter), framer-motion, lucide-react, d3-geo
+- **Run:** `npm run dev` (http://localhost:5173)
+- **Test:** none yet; use `npm run build` plus a browser check
+- **Entry point:** `src/main.jsx` (routes), `src/data.js` (seed data)
 
 ## Context — load only what the task needs
 
