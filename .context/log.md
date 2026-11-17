@@ -58,3 +58,8 @@
 - Institute register form now requires a proof document (type, PDF/JPG/PNG, <=5 MB) via `src/proofDoc.js`; reviewer Institutes tab shows and opens it; institute page lets the owner resubmit after "More info needed" or "Rejected".
 - Browser-tested the full loop. Limits assumed (not yet agreed on the issue): file types, size, one document. File is held in memory only (blob URL), lost on refresh.
 - Issue #6 shipped in PR #12 but was left open on GitHub.
+
+## [2026-11-17] session | Pending items cleared
+- 360px check clean on all pages listed in state.md; reject and more-info paths tested for evidence, credentials and institutes.
+- Filled CLAUDE.md placeholders, overview.md and constraints.md. Cross-checked indicators against PIB; tiger range lower bound flagged as secondary.
+- Gap found: a rejected institute can still join issues (hidden from People only).
