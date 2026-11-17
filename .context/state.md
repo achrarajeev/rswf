@@ -7,13 +7,14 @@
 - Prototype flows are complete in memory: accounts, join, tasks, evidence submit-review-publish, issue submission (#6, merged), institute registration with proof document (#7, on this branch), forum + moderation, verified badges, `/admin`.
 - Checked at 360px: Solution, Admin, Reviewer (Institutes, Verification), Me, Login, Register, Institute, IssueNew. No horizontal page scroll; the issue tab bar scrolls on purpose.
 - Reject / more-info paths tested: evidence, credential, institute (rejected institute is hidden from People and can resubmit).
+- Row 7 (admin-managed forum) done: admins post official pinned topics and tag users; tagged users see them on Me. Row 9 image audit done (all 14 images credited). Row 6 re-scoped (needs a decision on extra powers for verified lawyers/researchers). Row 8 stays deferred (needs a server).
 - Indicators in `src/data.js` cross-checked against PIB (ISFR 2023, AITE 2022). The tiger range lower bound (3,167) is secondary-only and noted as such.
 
 ## Next step
 
 1. Open the PR `ra_rapiddeploy` into `dev` (link in the log); close #7 when `dev` reaches `main`. Issue #6: comment added, owner to close.
 2. Agree the open questions on #7 (file types, size, one document) and #6 (required fields, reviewer criteria).
-3. Deferred rows 6-9 in `docs/pending-features.md` (roles beyond staff, admin-managed forum, scheduled data pull, royalty-free images) need the backend.
+3. Row 8 (scheduled data pull) needs the backend. Row 6 needs a team decision; row 9 needs original images from creators.
 
 ## Blocked / waiting on
 

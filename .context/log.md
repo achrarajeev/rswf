@@ -63,3 +63,7 @@
 - 360px check clean on all pages listed in state.md; reject and more-info paths tested for evidence, credentials and institutes.
 - Filled CLAUDE.md placeholders, overview.md and constraints.md. Cross-checked indicators against PIB; tiger range lower bound flagged as secondary.
 - Gap found: a rejected institute can still join issues (hidden from People only).
+
+## [2026-11-17] session | Rows 7, 6, 9
+- Row 7: `forum.official` permission, `forum.official()` and `forum.tag()` in forumStore (audited), TagPicker, "Admins tagged you" card on Me. Browser-tested: only admins see the toggle; moderator and user are refused at the store.
+- Row 9: audited all 14 images, each has artist, licence and page in credits.json. Row 6 re-scoped in docs. Row 8 left deferred.

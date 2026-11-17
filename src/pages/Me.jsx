@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Upload, Bookmark, ShieldCheck, LayoutGrid, ArrowUpRight, Clock, User, Landmark } from 'lucide-react'
 import { issues } from '../data'
 import { useAuth, auth, issuesFor } from '../authStore'
-import { useThreads } from '../forumStore'
+import { useThreads, taggedFor } from '../forumStore'
 import { useSubmissions } from '../evidenceStore'
 import { useTasks, taskStore, isMine } from '../tasksStore'
 import { PageHead, Reveal, ShareButton } from '../components/ui'
@@ -43,6 +43,7 @@ export default function Me() {
   const mine = me ? issuesFor(me.type, me.id) : []
   const myTasks = useTasks().filter(t => isMine(t, me) && t.status !== 'Open')
   const posts = me ? threads.filter(t => t.author === me.name) : []
+  const tagged = taggedFor(threads, me)
   return (
     <>
       <PageHead eyebrow="Me" title={me ? `Hello, ${me.name}` : 'Your space'} sub={me ? (inst ? 'Institute account' : rev ? `${me.type} account` : 'User account') : 'Log in or register to join issues and keep your activity here.'} />
@@ -74,6 +75,10 @@ export default function Me() {
             </div>}
           </div>
         )}
+        {tagged.length > 0 && <div className="card" style={{ marginBottom: 24 }}>
+          <h3 style={{ fontSize: 18 }}>Admins tagged you ({tagged.length})</h3>
+          <div className="grid" style={{ gap: 8, marginTop: 10 }}>{tagged.map(t => <Link key={t.id} to={`/forum/${t.id}`}><b>{t.title}</b><div className="mono" style={{ color: 'var(--mute)' }}>{issues.find(i => i.id === t.case)?.name} · by {t.author}</div></Link>)}</div>
+        </div>}
         {me?.type === 'User' && <Credentials me={me} />}
         {me && !rev && <div className="card" style={{ marginBottom: 24 }}>
           <h3 style={{ fontSize: 18 }}>Your tasks ({myTasks.length})</h3>
